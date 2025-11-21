@@ -13,6 +13,15 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// HealthGet implements GET /health operation.
+//
+// Проверить работоспособность сервиса.
+//
+// GET /health
+func (UnimplementedHandler) HealthGet(ctx context.Context) (r HealthGetRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // PullRequestCreatePost implements POST /pullRequest/create operation.
 //
 // Создать PR и автоматически назначить до 2 ревьюверов

@@ -9,8 +9,7 @@
 *.out
 
 # env file
-deploy/env/.env
-/.idea
+.env
+.idea
 
 /bin
-/deploy/compose/reviewer/.env

@@ -70,6 +70,8 @@ func (s ErrorResponseErrorCode) Validate() error {
 		return nil
 	case "NOT_FOUND":
 		return nil
+	case "SERVICE_UNAVAILABLE":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}

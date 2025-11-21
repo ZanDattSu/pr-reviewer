@@ -138,3 +138,15 @@ tasks:
               "$file" || exit 1
           fi
         done
+
+  up:
+    desc: Поднять reviewer и все его зависимости
+    cmds:
+      - echo "[task] Поднимаем reviewer с зависимостями"
+      - docker compose up --build --detach
+
+  down:
+    desc: Остановить reviewer сервис и все его зависимости
+    cmds:
+      - echo "[task] Останавливаем reviewer с зависимостями"
+      - docker compose down

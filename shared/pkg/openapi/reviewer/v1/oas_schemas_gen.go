@@ -23,6 +23,7 @@ func (s *ErrorResponse) SetError(val ErrorResponseError) {
 	s.Error = val
 }
 
+func (*ErrorResponse) healthGetRes()            {}
 func (*ErrorResponse) pullRequestMergePostRes() {}
 func (*ErrorResponse) teamAddPostRes()          {}
 func (*ErrorResponse) teamGetGetRes()           {}
@@ -56,12 +57,13 @@ func (s *ErrorResponseError) SetMessage(val string) {
 type ErrorResponseErrorCode string
 
 const (
-	ErrorResponseErrorCodeTEAMEXISTS  ErrorResponseErrorCode = "TEAM_EXISTS"
-	ErrorResponseErrorCodePREXISTS    ErrorResponseErrorCode = "PR_EXISTS"
-	ErrorResponseErrorCodePRMERGED    ErrorResponseErrorCode = "PR_MERGED"
-	ErrorResponseErrorCodeNOTASSIGNED ErrorResponseErrorCode = "NOT_ASSIGNED"
-	ErrorResponseErrorCodeNOCANDIDATE ErrorResponseErrorCode = "NO_CANDIDATE"
-	ErrorResponseErrorCodeNOTFOUND    ErrorResponseErrorCode = "NOT_FOUND"
+	ErrorResponseErrorCodeTEAMEXISTS         ErrorResponseErrorCode = "TEAM_EXISTS"
+	ErrorResponseErrorCodePREXISTS           ErrorResponseErrorCode = "PR_EXISTS"
+	ErrorResponseErrorCodePRMERGED           ErrorResponseErrorCode = "PR_MERGED"
+	ErrorResponseErrorCodeNOTASSIGNED        ErrorResponseErrorCode = "NOT_ASSIGNED"
+	ErrorResponseErrorCodeNOCANDIDATE        ErrorResponseErrorCode = "NO_CANDIDATE"
+	ErrorResponseErrorCodeNOTFOUND           ErrorResponseErrorCode = "NOT_FOUND"
+	ErrorResponseErrorCodeSERVICEUNAVAILABLE ErrorResponseErrorCode = "SERVICE_UNAVAILABLE"
 )
 
 // AllValues returns all ErrorResponseErrorCode values.
@@ -73,6 +75,7 @@ func (ErrorResponseErrorCode) AllValues() []ErrorResponseErrorCode {
 		ErrorResponseErrorCodeNOTASSIGNED,
 		ErrorResponseErrorCodeNOCANDIDATE,
 		ErrorResponseErrorCodeNOTFOUND,
+		ErrorResponseErrorCodeSERVICEUNAVAILABLE,
 	}
 }
 
@@ -90,6 +93,8 @@ func (s ErrorResponseErrorCode) MarshalText() ([]byte, error) {
 	case ErrorResponseErrorCodeNOCANDIDATE:
 		return []byte(s), nil
 	case ErrorResponseErrorCodeNOTFOUND:
+		return []byte(s), nil
+	case ErrorResponseErrorCodeSERVICEUNAVAILABLE:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -117,10 +122,43 @@ func (s *ErrorResponseErrorCode) UnmarshalText(data []byte) error {
 	case ErrorResponseErrorCodeNOTFOUND:
 		*s = ErrorResponseErrorCodeNOTFOUND
 		return nil
+	case ErrorResponseErrorCodeSERVICEUNAVAILABLE:
+		*s = ErrorResponseErrorCodeSERVICEUNAVAILABLE
+		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
+
+// Ref: #/components/schemas/HealthResponse
+type HealthResponse struct {
+	// Статус работоспособности сервиса.
+	Status string `json:"status"`
+	// Имя сервиса.
+	Service string `json:"service"`
+}
+
+// GetStatus returns the value of Status.
+func (s *HealthResponse) GetStatus() string {
+	return s.Status
+}
+
+// GetService returns the value of Service.
+func (s *HealthResponse) GetService() string {
+	return s.Service
+}
+
+// SetStatus sets the value of Status.
+func (s *HealthResponse) SetStatus(val string) {
+	s.Status = val
+}
+
+// SetService sets the value of Service.
+func (s *HealthResponse) SetService(val string) {
+	s.Service = val
+}
+
+func (*HealthResponse) healthGetRes() {}
 
 // NewOptNilDateTime returns new OptNilDateTime with value set to v.
 func NewOptNilDateTime(v time.Time) OptNilDateTime {

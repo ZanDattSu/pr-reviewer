@@ -3,8 +3,11 @@ module github.com/ZanDattSu/pr-reviewer
 go 1.24.0
 
 require (
+	github.com/caarlos0/env/v11 v11.3.1
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.2.0
+	github.com/joho/godotenv v1.5.1
 	github.com/ogen-go/ogen v1.16.0
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/metric v1.38.0

@@ -8,6 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// HealthGet implements GET /health operation.
+	//
+	// Проверить работоспособность сервиса.
+	//
+	// GET /health
+	HealthGet(ctx context.Context) (HealthGetRes, error)
 	// PullRequestCreatePost implements POST /pullRequest/create operation.
 	//
 	// Создать PR и автоматически назначить до 2 ревьюверов

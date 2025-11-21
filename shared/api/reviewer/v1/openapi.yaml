@@ -31,6 +31,18 @@ components:
         type: string
       description: Идентификатор пользователя
   schemas:
+    HealthResponse:
+      type: object
+      required: [status, service]
+      properties:
+        status:
+          type: string
+          description: Статус работоспособности сервиса
+          example: ok
+        service:
+          type: string
+          description: Имя сервиса
+          example: "reviewer-service"
     ErrorResponse:
       type: object
       required: [error]
@@ -48,6 +60,7 @@ components:
                 - NOT_ASSIGNED
                 - NO_CANDIDATE
                 - NOT_FOUND
+                - SERVICE_UNAVAILABLE
             message:
               type: string
       example:
@@ -127,6 +140,23 @@ components:
           enum: [OPEN, MERGED]
 
 paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Проверить работоспособность сервиса
+      responses:
+        '200':
+          description: Сервис доступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /team/add:
     post:
       tags: [Teams]

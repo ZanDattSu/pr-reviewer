@@ -6,6 +6,7 @@ package reviewer_v1
 type OperationName = string
 
 const (
+	HealthGetOperation               OperationName = "HealthGet"
 	PullRequestCreatePostOperation   OperationName = "PullRequestCreatePost"
 	PullRequestMergePostOperation    OperationName = "PullRequestMergePost"
 	PullRequestReassignPostOperation OperationName = "PullRequestReassignPost"
