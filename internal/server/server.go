@@ -34,11 +34,12 @@ func NewHTTPServer(address string, api reviewerV1.Handler) (*HTTPServer, error) 
 	server := &http.Server{
 		Addr:              address,
 		Handler:           r,
-		ReadHeaderTimeout: config.AppConfig().Server.ReadHeaderTimeout(), // Защита от Slowloris атак
+		ReadHeaderTimeout: config.AppConfig().Server.ReadHeaderTimeout(), // Защита от Slowloris атак:
 		// тип DDoS-атаки, при которой атакующий умышленно медленно отправляет HTTP-заголовки,
 		// удерживая соединения открытыми и истощая пул доступных соединений на сервере.
 		// ReadHeaderTimeout принудительно закрывает соединение,
 		// если клиент не успел отправить все заголовки за отведенное время.
+
 	}
 
 	return &HTTPServer{
@@ -48,6 +49,7 @@ func NewHTTPServer(address string, api reviewerV1.Handler) (*HTTPServer, error) 
 
 func (s *HTTPServer) Serve() error {
 	log.Println("Listening on", s.server.Addr)
+
 	return s.server.ListenAndServe()
 }
 
@@ -55,5 +57,6 @@ func (s *HTTPServer) Shutdown(ctx context.Context) error {
 	if err := s.server.Shutdown(ctx); err != nil {
 		return fmt.Errorf("HTTP server shutdown error: %w", err)
 	}
+
 	return nil
 }

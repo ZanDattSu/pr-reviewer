@@ -1,11 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
-	apiV1 "github.com/ZanDattSu/pr-reviewer/internal/api/v1"
+	"go.uber.org/zap"
+
+	"github.com/ZanDattSu/pr-reviewer/internal/app"
 	"github.com/ZanDattSu/pr-reviewer/internal/config"
-	"github.com/ZanDattSu/pr-reviewer/internal/server"
+	"github.com/ZanDattSu/pr-reviewer/pkg/closer"
+	"github.com/ZanDattSu/pr-reviewer/pkg/logger"
 )
 
 const configPath = ".env"
@@ -15,15 +22,34 @@ func main() {
 		panic(fmt.Errorf("failed to load config: %w", err))
 	}
 
-	api := apiV1.NewApi()
+	// SIGTERM - "вежливая" просьба завершиться
+	// SIGINT - прерывание с клавиатуры (Ctrl+C)
+	osSignals := []os.Signal{syscall.SIGINT, syscall.SIGTERM}
 
-	httpServer, err := server.NewHTTPServer(config.AppConfig().Server.Address(), api)
+	appCtx, appCancel := signal.NotifyContext(context.Background(), osSignals...)
+	defer appCancel()
+	defer gracefulShutdown()
+
+	closer.Configure(osSignals...)
+
+	a, err := app.New(appCtx)
 	if err != nil {
+		logger.Error(appCtx, "Не удалось создать приложение", zap.Error(err))
 		return
 	}
 
-	err = httpServer.Serve()
-	if err != nil {
+	if err = a.Run(appCtx); err != nil {
+		logger.Error(appCtx, "Ошибка при работе приложения", zap.Error(err))
 		return
+	}
+}
+
+// gracefulShutdown мягко завершает работу программы
+func gracefulShutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), config.AppConfig().App.ShutdownTimeout())
+	defer cancel()
+
+	if err := closer.CloseAll(ctx); err != nil {
+		logger.Error(ctx, "Ошибка при завершении работы", zap.Error(err))
 	}
 }
