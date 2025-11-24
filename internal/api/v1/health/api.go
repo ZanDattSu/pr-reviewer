@@ -3,9 +3,9 @@ package health
 import (
 	"context"
 
-	reviewerV1 "github.com/ZanDattSu/pr-reviewer/shared/pkg/openapi/reviewer/v1"
+	reviewerV1 "github.com/ZanDattSu/pr-reviewer/api/pkg/reviewer/v1"
 )
 
-type Api interface {
+type HealthApi interface {
 	HealthGet(ctx context.Context) (reviewerV1.HealthGetRes, error)
 }

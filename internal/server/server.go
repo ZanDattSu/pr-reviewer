@@ -9,8 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	reviewerV1 "github.com/ZanDattSu/pr-reviewer/api/pkg/reviewer/v1"
 	"github.com/ZanDattSu/pr-reviewer/internal/config"
-	reviewerV1 "github.com/ZanDattSu/pr-reviewer/shared/pkg/openapi/reviewer/v1"
 )
 
 type HTTPServer struct {
