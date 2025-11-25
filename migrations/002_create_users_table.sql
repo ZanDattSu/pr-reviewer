@@ -9,11 +9,15 @@ CREATE TABLE IF NOT EXISTS users
 
 CREATE INDEX idx_users_team_id ON users (team_id);
 
+CREATE INDEX idx_users_active ON users(is_active);
+
 CREATE INDEX idx_users_team_active ON users (team_id, is_active);
 
 -- +goose Down
 DROP TABLE IF EXISTS users;
 
 DROP INDEX IF EXISTS idx_users_team_id;
+
+DROP INDEX IF EXISTS idx_users_team_active;
 
 DROP INDEX IF EXISTS idx_users_team_active;
