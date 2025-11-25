@@ -1,0 +1,18 @@
+with-expecter: true
+dir: "{{.InterfaceDir}}/../mocks"
+filename: "mock_{{.InterfaceNameSnake}}.go"
+outpkg: "mocks"
+mockname: "{{.InterfaceName}}"
+resolve-type-alias: False
+issue-845-fix: True
+recursive: true
+disable-version-string: True
+
+packages:
+  github.com/ZanDattSu/pr-reviewer/internal/service:
+    config:
+      include-regex: ".*Service"
+
+  github.com/ZanDattSu/pr-reviewer/internal/repository:
+    config:
+      include-regex: ".*Repository"

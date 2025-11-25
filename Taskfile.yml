@@ -7,6 +7,7 @@ vars:
   GOLANGCI_LINT_VERSION: 'v2.1.5'
   YQ_VERSION: 'v4.45.2'
   OGEN_VERSION: 'v1.12.0'
+  MOCKERY_VERSION: 'v2.53.3'
 
   # Директории
   BIN_DIR: '{{.ROOT_DIR}}/bin'
@@ -15,6 +16,10 @@ vars:
   GOFUMPT: '{{.BIN_DIR}}/gofumpt'
   YQ: '{{.BIN_DIR}}/yq'
   OGEN: '{{.BIN_DIR}}/ogen'
+  MOCKERY: "{{.BIN_DIR}}/mockery"
+
+  COVERAGE_DIR: '{{.ROOT_DIR}}/coverage'
+  COVERAGE_FILE: total.out
 
   OPEN_API_FILES: '{{.ROOT_DIR}}/api/reviewer/v1'
 
@@ -150,3 +155,62 @@ tasks:
     cmds:
       - echo "[task] Останавливаем reviewer с зависимостями"
       - docker compose down
+
+  mockery:install:
+    desc: "Устанавливает mockery в ./bin"
+    cmds:
+      - |
+        [ -f {{.MOCKERY}} ] || {
+          echo 'Installing mockery...'
+          GOBIN={{.BIN_DIR}} go install github.com/vektra/mockery/v2@{{.MOCKERY_VERSION}}
+        }
+    status:
+      - test -x {{.MOCKERY}}
+
+  mockery:gen:
+    desc: "Генерирует моки интерфейсов с помощью mockery"
+    deps: [ mockery:install ]
+    cmds:
+      - |
+        echo 'Генерация моков...'
+        {{.MOCKERY}}
+
+  test-coverage:
+    desc: "Тесты с покрытием бизнес-логики, автоматический поиск и анализ всех модулей"
+    cmds:
+      - |
+        echo "Запускаем расчёт покрытия..."
+        rm -rf {{.COVERAGE_DIR}}
+        mkdir -p {{.COVERAGE_DIR}}
+        
+        # Находим все пакеты, для которых нужно измерить покрытие (исключаем mocks)
+        TARGET_PACKAGES=$(go list ./internal/... | grep -v "/mocks" | grep -E '/(api|service|repository)/' | tr '\n' ',')
+        
+        if [ -z "$TARGET_PACKAGES" ]; then
+          echo "Не найдено пакетов для тестирования"
+          exit 1
+        fi
+        
+        echo "Запуск тестов со сбором покрытия для всех модулей..."
+        go test -v -coverprofile={{.COVERAGE_DIR}}/coverage.out -coverpkg=$TARGET_PACKAGES ./...
+        
+        echo "Общее покрытие:"
+        go tool cover -func={{.COVERAGE_DIR}}/coverage.out | tail -n1
+
+  coverage:html:
+    desc: "Генерирует HTML-отчёт покрытия и открывает его в браузере"
+    deps: [ test-coverage ]
+    cmds:
+      - |
+        OUTPUT={{.COVERAGE_DIR}}/coverage.html
+        echo "Генерируем HTML-отчёт..."
+        go tool cover -html={{.COVERAGE_DIR}}/coverage.out -o $OUTPUT
+        
+        echo "Открываем $OUTPUT"
+        if command -v open &> /dev/null; then
+          open $OUTPUT  # macOS
+        elif command -v xdg-open &> /dev/null; then
+          xdg-open $OUTPUT  # Linux
+        else
+          echo "Отчёт сохранён в $OUTPUT (открой вручную)"
+        fi
