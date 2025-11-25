@@ -7,10 +7,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/mocks"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/reviewer"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/team"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/user"
 )
 
 type SuiteService struct {
@@ -18,10 +14,10 @@ type SuiteService struct {
 
 	ctx context.Context //nolint:containedctx
 
-	prRepo       pullrequest.PullRequestRepository
-	reviewerRepo reviewer.ReviewerRepository
-	teamRepo     team.TeamRepository
-	userRepo     user.UserRepository
+	prRepo       *mocks.PullRequestRepository
+	reviewerRepo *mocks.ReviewerRepository
+	teamRepo     *mocks.TeamRepository
+	userRepo     *mocks.UserRepository
 
 	service *prService
 }

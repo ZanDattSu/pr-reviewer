@@ -183,18 +183,17 @@ tasks:
         rm -rf {{.COVERAGE_DIR}}
         mkdir -p {{.COVERAGE_DIR}}
         
-        # Находим все пакеты, для которых нужно измерить покрытие (исключаем mocks)
-        TARGET_PACKAGES=$(go list ./internal/... | grep -v "/mocks" | grep -E '/(api|service|repository)/' | tr '\n' ',')
+        TARGET_PACKAGES=$(go list ./internal/... | grep -v "/mocks" | grep -E '/service/' | tr '\n' ',')
         
         if [ -z "$TARGET_PACKAGES" ]; then
           echo "Не найдено пакетов для тестирования"
           exit 1
         fi
         
-        echo "Запуск тестов со сбором покрытия для всех модулей..."
+        echo "Запуск тестов со сбором покрытия..."
         go test -v -coverprofile={{.COVERAGE_DIR}}/coverage.out -coverpkg=$TARGET_PACKAGES ./...
         
-        echo "Общее покрытие:"
+        echo "Общее покрытие service слоя (бизнес-логика):"
         go tool cover -func={{.COVERAGE_DIR}}/coverage.out | tail -n1
 
   coverage:html:

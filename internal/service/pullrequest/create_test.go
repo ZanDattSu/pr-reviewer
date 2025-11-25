@@ -7,7 +7,6 @@ import (
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
 	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/mocks"
 )
 
 func (s *SuiteService) TestCreatePullRequest() {
@@ -29,22 +28,22 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Add search",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1001").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.(*mocks.TeamRepository).
+				s.teamRepo.
 					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
 					Return([]string{"u2", "u3", "u4"}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("InsertPR", s.ctx, mock.MatchedBy(func(pr model.PullRequest) bool {
 						return pr.PullRequestID == "pr-1001" &&
 							pr.PullRequestName == "Add search" &&
@@ -76,22 +75,22 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Fix bug",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1002").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.(*mocks.TeamRepository).
+				s.teamRepo.
 					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
 					Return([]string{"u2"}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("InsertPR", s.ctx, mock.MatchedBy(func(pr model.PullRequest) bool {
 						return pr.PullRequestID == "pr-1002" &&
 							len(pr.AssignedReviewers) == 1 &&
@@ -121,22 +120,22 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Update docs",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1003").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.(*mocks.TeamRepository).
+				s.teamRepo.
 					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
 					Return([]string{}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("InsertPR", s.ctx, mock.MatchedBy(func(pr model.PullRequest) bool {
 						return pr.PullRequestID == "pr-1003" &&
 							len(pr.AssignedReviewers) == 0
@@ -165,7 +164,7 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Duplicate PR",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1001").
 					Return(true, nil).
 					Once()
@@ -179,12 +178,12 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "New feature",
 			authorID:        "non-existent-user",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1004").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "non-existent-user").
 					Return(false, nil).
 					Once()
@@ -198,7 +197,7 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Test PR",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1005").
 					Return(false, dbErr).
 					Once()
@@ -212,12 +211,12 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Test PR",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1006").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(false, dbErr).
 					Once()
@@ -231,17 +230,17 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Test PR",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1007").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.(*mocks.TeamRepository).
+				s.teamRepo.
 					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
 					Return(nil, dbErr).
 					Once()
@@ -255,22 +254,22 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Test PR",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-1008").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.(*mocks.TeamRepository).
+				s.teamRepo.
 					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
 					Return([]string{"u2", "u3"}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("InsertPR", s.ctx, mock.Anything).
 					Return(model.PullRequest{}, dbErr).
 					Once()
@@ -284,22 +283,22 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Test PR",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.(*mocks.TeamRepository).
+				s.teamRepo.
 					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
 					Return([]string{"u2"}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("InsertPR", s.ctx, mock.MatchedBy(func(pr model.PullRequest) bool {
 						return pr.PullRequestID == ""
 					})).
@@ -327,22 +326,22 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "",
 			authorID:        "u1",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-2001").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "u1").
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.(*mocks.TeamRepository).
+				s.teamRepo.
 					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
 					Return([]string{"u2"}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("InsertPR", s.ctx, mock.MatchedBy(func(pr model.PullRequest) bool {
 						return pr.PullRequestName == ""
 					})).
@@ -370,12 +369,12 @@ func (s *SuiteService) TestCreatePullRequest() {
 			pullRequestName: "Test PR",
 			authorID:        "",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("CheckPRExists", s.ctx, "pr-2002").
 					Return(false, nil).
 					Once()
 
-				s.userRepo.(*mocks.UserRepository).
+				s.userRepo.
 					On("CheckUserExists", s.ctx, "").
 					Return(false, nil).
 					Once()
@@ -412,9 +411,9 @@ func (s *SuiteService) TestCreatePullRequest() {
 				s.Equal(len(tt.expectedPR.AssignedReviewers), len(actualPR.AssignedReviewers))
 			}
 
-			s.prRepo.(*mocks.PullRequestRepository).AssertExpectations(s.T())
-			s.userRepo.(*mocks.UserRepository).AssertExpectations(s.T())
-			s.teamRepo.(*mocks.TeamRepository).AssertExpectations(s.T())
+			s.prRepo.AssertExpectations(s.T())
+			s.userRepo.AssertExpectations(s.T())
+			s.teamRepo.AssertExpectations(s.T())
 		})
 	}
 }

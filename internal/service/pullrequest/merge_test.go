@@ -9,7 +9,6 @@ import (
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
 	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/mocks"
 )
 
 func (s *SuiteService) TestMergePullRequest() {
@@ -27,7 +26,7 @@ func (s *SuiteService) TestMergePullRequest() {
 			name:          "успешный merge — первый вызов, устанавливаем MERGED и mergedAt",
 			pullRequestID: "pr-1001",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("GetPRWithReviewers", s.ctx, "pr-1001").
 					Return(model.PullRequest{
 						PullRequestID:     "pr-1001",
@@ -38,7 +37,7 @@ func (s *SuiteService) TestMergePullRequest() {
 					}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("UpdatePRStatus", s.ctx, mock.MatchedBy(func(pr model.PullRequest) bool {
 						return pr.PullRequestID == "pr-1001"
 					}), model.StatusMerged).
@@ -67,7 +66,7 @@ func (s *SuiteService) TestMergePullRequest() {
 			setupMocks: func() {
 				oldMergeTime := time.Now().Add(-time.Hour)
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("GetPRWithReviewers", s.ctx, "pr-1002").
 					Return(model.PullRequest{
 						PullRequestID:     "pr-1002",
@@ -79,8 +78,7 @@ func (s *SuiteService) TestMergePullRequest() {
 					}, nil).
 					Once()
 
-				// Update должен вернуть тот же mergedAt из-за COALESCE(merged_at, NOW())
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("UpdatePRStatus", s.ctx, mock.Anything, model.StatusMerged).
 					Return(model.PullRequest{
 						PullRequestID:     "pr-1002",
@@ -105,7 +103,7 @@ func (s *SuiteService) TestMergePullRequest() {
 			name:          "ошибка: PR не найден",
 			pullRequestID: "pr-9999",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("GetPRWithReviewers", s.ctx, "pr-9999").
 					Return(model.PullRequest{}, apperror.NewPRNotFoundError("pr-9999")).
 					Once()
@@ -118,7 +116,7 @@ func (s *SuiteService) TestMergePullRequest() {
 			name:          "ошибка в GetPRWithReviewers — внутренняя ошибка",
 			pullRequestID: "pr-1003",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("GetPRWithReviewers", s.ctx, "pr-1003").
 					Return(model.PullRequest{}, dbErr).
 					Once()
@@ -131,7 +129,7 @@ func (s *SuiteService) TestMergePullRequest() {
 			name:          "ошибка в UpdatePRStatus — например, потеря соединения",
 			pullRequestID: "pr-1004",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("GetPRWithReviewers", s.ctx, "pr-1004").
 					Return(model.PullRequest{
 						PullRequestID: "pr-1004",
@@ -139,7 +137,7 @@ func (s *SuiteService) TestMergePullRequest() {
 					}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("UpdatePRStatus", s.ctx, mock.Anything, model.StatusMerged).
 					Return(model.PullRequest{}, dbErr).
 					Once()
@@ -152,7 +150,7 @@ func (s *SuiteService) TestMergePullRequest() {
 			name:          "merge работает корректно, даже если у PR нет reviewers",
 			pullRequestID: "pr-1005",
 			setupMocks: func() {
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("GetPRWithReviewers", s.ctx, "pr-1005").
 					Return(model.PullRequest{
 						PullRequestID:     "pr-1005",
@@ -163,7 +161,7 @@ func (s *SuiteService) TestMergePullRequest() {
 					}, nil).
 					Once()
 
-				s.prRepo.(*mocks.PullRequestRepository).
+				s.prRepo.
 					On("UpdatePRStatus", s.ctx, mock.Anything, model.StatusMerged).
 					Return(model.PullRequest{
 						PullRequestID:     "pr-1005",
@@ -202,7 +200,7 @@ func (s *SuiteService) TestMergePullRequest() {
 				s.Equal(tt.expectedPR.PullRequestID, actualPR.PullRequestID)
 			}
 
-			s.prRepo.(*mocks.PullRequestRepository).AssertExpectations(s.T())
+			s.prRepo.AssertExpectations(s.T())
 		})
 	}
 }

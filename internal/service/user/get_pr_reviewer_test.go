@@ -112,14 +112,16 @@ func (s *SuiteService) TestUserGetPRReviewer() {
 
 			prList, err := s.service.UserGetPRReviewer(s.ctx, tt.userID)
 
-			//nolint:gocritic
-			if tt.expectedErr != nil {
+			switch {
+			case tt.expectedErr != nil:
 				s.Error(err)
 				s.Equal(tt.expectedErr.Error(), err.Error())
-			} else if tt.expectedErrTyp != nil {
+
+			case tt.expectedErrTyp != nil:
 				s.Error(err)
 				s.IsType(tt.expectedErrTyp, err)
-			} else {
+
+			default:
 				s.NoError(err)
 				s.Equal(tt.expectedPRs, prList)
 			}

@@ -120,6 +120,7 @@ properties:
 
 - **CI** (`.github/workflows/ci.yml`) - проверяет код при каждом push и pull request
     - Запуск линтера golangci-lint
+    - Запуск unit тестов
 
 ### Конфигурация линтера (golangci-lint)
 
