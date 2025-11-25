@@ -8,7 +8,7 @@ import (
 	repoModel "github.com/ZanDattSu/pr-reviewer/internal/repository/model"
 )
 
-func (r *userRepository) UserGetReview(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
+func (r *userRepository) UserGetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
 	const q = `
         SELECT pr.pull_request_id,
                pr.pull_request_name,
@@ -19,22 +19,25 @@ func (r *userRepository) UserGetReview(ctx context.Context, userID string) ([]mo
         JOIN pull_request_status prs ON pr.status_id = prs.id
         WHERE prr.reviewer_id = $1
     `
+
 	rows, err := r.pool.Query(ctx, q, userID)
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	userPRs := make([]repoModel.UserAssignedPR, 0)
 
 	for rows.Next() {
 		var pr repoModel.UserAssignedPR
-		if err := rows.Scan(
+		err := rows.Scan(
 			&pr.PullRequestID,
 			&pr.PullRequestName,
 			&pr.AuthorID,
 			&pr.Status,
-		); err != nil {
+		)
+		if err != nil {
 			return nil, err
 		}
 		userPRs = append(userPRs, pr)

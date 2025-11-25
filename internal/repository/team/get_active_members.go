@@ -1,13 +1,19 @@
 package team
 
-import "context"
+import (
+	"context"
+)
 
-func (r *teamRepository) GetTeamActiveMembers(ctx context.Context, userID string) ([]string, error) {
+func (r *teamRepository) GetTeamActiveMembersWithoutUser(ctx context.Context, userID string) ([]string, error) {
 	const query = `
         SELECT user_id
         FROM users
-        WHERE team_id = (SELECT team_id FROM users WHERE user_id = $1)
-          AND is_active = TRUE`
+        WHERE team_id = (
+            SELECT team_id FROM users WHERE user_id = $1
+        )
+        AND is_active = TRUE
+        AND user_id <> $1;
+    `
 
 	rows, err := r.pool.Query(ctx, query, userID)
 	if err != nil {
@@ -16,7 +22,6 @@ func (r *teamRepository) GetTeamActiveMembers(ctx context.Context, userID string
 	defer rows.Close()
 
 	members := make([]string, 0)
-
 	for rows.Next() {
 		var id string
 		if err := rows.Scan(&id); err != nil {

@@ -42,7 +42,7 @@ func (a *mainHandler) UsersSetIsActivePost(ctx context.Context, req *reviewerV1.
 	return a.UsersApi.UsersSetIsActivePost(ctx, req)
 }
 
-func (a *mainHandler) UsersGetReviewGet(ctx context.Context, params reviewerV1.UsersGetReviewGetParams) (*reviewerV1.UsersGetReviewGetOK, error) {
+func (a *mainHandler) UsersGetReviewGet(ctx context.Context, params reviewerV1.UsersGetReviewGetParams) (reviewerV1.UsersGetReviewGetRes, error) {
 	return a.UsersApi.UsersGetReviewGet(ctx, params)
 }
 

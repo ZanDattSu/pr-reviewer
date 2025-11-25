@@ -20,7 +20,7 @@ func ServiceTeamToAPI(t service.Team) api.Team {
 
 func ServiceTeamMemberToAPI(m service.TeamMember) api.TeamMember {
 	return api.TeamMember{
-		UserID:   m.UserUUID,
+		UserID:   m.UserID,
 		Username: m.Username,
 		IsActive: m.IsActive,
 	}
@@ -28,9 +28,11 @@ func ServiceTeamMemberToAPI(m service.TeamMember) api.TeamMember {
 
 func ServiceTeamMembersToAPI(ms []service.TeamMember) []api.TeamMember {
 	out := make([]api.TeamMember, 0, len(ms))
+
 	for _, m := range ms {
 		out = append(out, ServiceTeamMemberToAPI(m))
 	}
+
 	return out
 }
 
@@ -45,7 +47,7 @@ func APIToServiceTeam(t api.Team) service.Team {
 
 func APIToServiceTeamMember(m api.TeamMember) service.TeamMember {
 	return service.TeamMember{
-		UserUUID: m.UserID,
+		UserID:   m.UserID,
 		Username: m.Username,
 		IsActive: m.IsActive,
 	}
@@ -53,9 +55,11 @@ func APIToServiceTeamMember(m api.TeamMember) service.TeamMember {
 
 func APIToServiceTeamMembers(ms []api.TeamMember) []service.TeamMember {
 	out := make([]service.TeamMember, 0, len(ms))
+
 	for _, m := range ms {
 		out = append(out, APIToServiceTeamMember(m))
 	}
+
 	return out
 }
 
@@ -82,8 +86,8 @@ func APIToServiceUser(u api.User) service.User {
 // PULL REQUEST
 
 func ServicePRToAPI(pr service.PullRequest) api.PullRequest {
-	// service: [2]string → api: []string
 	reviewers := make([]string, 0, 2)
+
 	for _, r := range pr.AssignedReviewers {
 		if r != "" {
 			reviewers = append(reviewers, r)
@@ -111,10 +115,8 @@ func ServicePRToAPI(pr service.PullRequest) api.PullRequest {
 
 func APIToServicePR(pr api.PullRequest) service.PullRequest {
 	var reviewers []string
+
 	for i := range pr.AssignedReviewers {
-		if i >= 2 {
-			break
-		}
 		reviewers[i] = pr.AssignedReviewers[i]
 	}
 
@@ -164,9 +166,11 @@ func ServiceUserAssignedPRToAPI(pr service.UserAssignedPR) api.PullRequestShort 
 
 func ServiceUserAssignedPRsToAPI(prs []service.UserAssignedPR) []api.PullRequestShort {
 	out := make([]api.PullRequestShort, 0, len(prs))
+
 	for _, pr := range prs {
 		out = append(out, ServiceUserAssignedPRToAPI(pr))
 	}
+
 	return out
 }
 
@@ -183,8 +187,10 @@ func APIToServiceUserAssignedPR(pr api.PullRequestShort) service.UserAssignedPR 
 
 func APIToServiceUserAssignedPRs(prs []api.PullRequestShort) []service.UserAssignedPR {
 	out := make([]service.UserAssignedPR, 0, len(prs))
+
 	for _, pr := range prs {
 		out = append(out, APIToServiceUserAssignedPR(pr))
 	}
+
 	return out
 }

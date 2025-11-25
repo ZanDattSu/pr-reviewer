@@ -7,6 +7,7 @@ import (
 )
 
 type UserRepository interface {
-	UpdateUserIsActive(ctx context.Context, userID string, isActive bool) (model.User, error)
-	UserGetReview(ctx context.Context, userID string) ([]model.UserAssignedPR, error)
+	UpdateUserStatus(ctx context.Context, userID string, isActive bool) (model.User, error)
+	UserGetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error)
+	CheckUserExists(ctx context.Context, userId string) (bool, error)
 }

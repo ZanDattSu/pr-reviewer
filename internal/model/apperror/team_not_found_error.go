@@ -15,3 +15,7 @@ func NewTeamNotFoundError(name string) *TeamNotFoundError {
 		teamName: name,
 	}
 }
+
+func (e *TeamNotFoundError) TeamName() string {
+	return e.teamName
+}

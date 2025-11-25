@@ -9,3 +9,5 @@ CREATE UNIQUE INDEX idx_teams_team_name ON teams (team_name);
 
 -- +goose Down
 DROP TABLE IF EXISTS teams;
+
+DROP INDEX IF EXISTS idx_teams_team_name;

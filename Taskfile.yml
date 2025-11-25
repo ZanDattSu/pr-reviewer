@@ -16,7 +16,7 @@ vars:
   YQ: '{{.BIN_DIR}}/yq'
   OGEN: '{{.BIN_DIR}}/ogen'
 
-  OPEN_API_FILES: '{{.ROOT_DIR}}/shared/api/reviewer/v1'
+  OPEN_API_FILES: '{{.ROOT_DIR}}/api/reviewer/v1'
 
 
 tasks:
@@ -119,7 +119,7 @@ tasks:
           GOBIN={{.BIN_DIR}} go install github.com/ogen-go/ogen/cmd/ogen@{{.OGEN_VERSION}}
         }
 
-  ogen:gen:
+  api:gen:
     desc: "Генерация Go-кода из всех OpenAPI-деклараций с x-ogen"
     deps: [ ogen:install, yq:install ]
     cmds:

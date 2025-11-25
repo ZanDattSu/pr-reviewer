@@ -11,6 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/ogen-go/ogen v1.16.0
 	github.com/pressly/goose/v3 v3.26.0
+	github.com/samber/lo v1.52.0
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/metric v1.38.0
 	go.opentelemetry.io/otel/trace v1.38.0

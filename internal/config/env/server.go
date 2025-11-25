@@ -8,15 +8,11 @@ import (
 )
 
 type serverEnvConfig struct {
-	HTTPHost string `env:"HTTP_HOST,required"`
-
-	HTTPPort string `env:"HTTP_PORT,required"`
-
-	HTTPResponseTimeout time.Duration `env:"HTTP_RESPONSE_TIMEOUT,required"`
-
+	HTTPHost              string        `env:"HTTP_HOST,required"`
+	HTTPPort              string        `env:"HTTP_PORT,required"`
+	HTTPResponseTimeout   time.Duration `env:"HTTP_RESPONSE_TIMEOUT,required"`
 	HttpReadHeaderTimeout time.Duration `env:"HTTP_READ_HEADER_TIMEOUT,required"`
-
-	HttpShutdownTimeout time.Duration `env:"HTTP_SHUTDOWN_TIMEOUT,required"`
+	HttpShutdownTimeout   time.Duration `env:"HTTP_SHUTDOWN_TIMEOUT,required"`
 }
 
 type serverConfig struct {

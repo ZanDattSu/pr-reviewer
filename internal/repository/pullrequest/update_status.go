@@ -2,30 +2,36 @@ package pullrequest
 
 import (
 	"context"
+	"errors"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
+	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/converter"
-	repoModel "github.com/ZanDattSu/pr-reviewer/internal/repository/model"
 )
 
-func (r *prRepository) UpdatePRStatus(ctx context.Context, prID string, status model.Status) (model.PullRequest, error) {
+func (r *prRepository) UpdatePRStatus(ctx context.Context, pr model.PullRequest, status model.Status) (model.PullRequest, error) {
 	const q = `
         UPDATE pull_requests
         SET status_id = $2,
             merged_at = COALESCE(merged_at, NOW())
         WHERE pull_request_id = $1
-        RETURNING pull_request_id, pull_request_name, author_id, status_id, created_at, merged_at;
+        RETURNING status_id, merged_at;
     `
 
-	var pr repoModel.PullRequest
+	pr.Status = status
 
-	err := r.pool.QueryRow(ctx, q, prID, converter.ServicePRStatusToRepo(status)).Scan(
-		&pr.PullRequestID,
-		&pr.PullRequestName,
-		&pr.AuthorID,
-		&pr.Status,
-		&pr.CreatedAt,
-		&pr.MergedAt,
-	)
-	return converter.RepoPRToService(pr), err
+	repoPR := converter.ServicePRToRepo(pr)
+
+	err := r.pool.QueryRow(ctx, q, pr.PullRequestID, repoPR.Status).Scan(&repoPR.Status, &repoPR.MergedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.PullRequest{}, apperror.NewPRNotFoundError(pr.PullRequestID)
+		}
+		return model.PullRequest{}, err
+
+	}
+
+	return converter.RepoPRToService(repoPR), nil
 }

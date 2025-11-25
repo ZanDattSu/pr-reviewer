@@ -9,13 +9,10 @@ import (
 var appConfig *config
 
 type config struct {
-	App App
-
-	Server ServerConfig
-
+	App      App
+	Server   ServerConfig
 	Postgres PostgresConfig
-
-	Logger LoggerConfig
+	Logger   LoggerConfig
 }
 
 func Load(path ...string) error {
@@ -45,13 +42,10 @@ func Load(path ...string) error {
 	}
 
 	appConfig = &config{
-		App: app,
-
-		Server: order,
-
+		App:      app,
+		Server:   order,
 		Postgres: postgres,
-
-		Logger: logger,
+		Logger:   logger,
 	}
 
 	return nil

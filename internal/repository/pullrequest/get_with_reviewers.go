@@ -2,13 +2,17 @@ package pullrequest
 
 import (
 	"context"
+	"errors"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
+	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/converter"
 	repoModel "github.com/ZanDattSu/pr-reviewer/internal/repository/model"
 )
 
-func (r *prRepository) GetPRWithReviewers(ctx context.Context, prID string) (model.PullRequest, []string, error) {
+func (r *prRepository) GetPRWithReviewers(ctx context.Context, prID string) (model.PullRequest, error) {
 	const query = `
         SELECT 
             pr.pull_request_id,
@@ -34,8 +38,13 @@ func (r *prRepository) GetPRWithReviewers(ctx context.Context, prID string) (mod
 		&reviewers,
 	)
 	if err != nil {
-		return model.PullRequest{}, nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.PullRequest{}, apperror.NewPRNotFoundError(prID)
+		}
+		return model.PullRequest{}, err
 	}
 
-	return converter.RepoPRToService(pr), reviewers, nil
+	pr.AssignedReviewers = reviewers
+
+	return converter.RepoPRToService(pr), nil
 }

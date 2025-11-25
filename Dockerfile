@@ -4,10 +4,11 @@ FROM golang:1.24.1 AS builder
 
 WORKDIR /app
 
+ENV GOPROXY=direct
+
 # Копируем файлы go.mod и go.sum отдельно для кеширования зависимостей
 COPY go.mod go.sum ./
 
-# Скачиваем зависимости заранее
 RUN go mod download
 
 COPY . .
@@ -22,7 +23,8 @@ FROM alpine:3.21.3
 
 WORKDIR /app
 
-# Создаём непривилегированного пользователя и группу с фиксированными UID/GID
+# best practice: Создаём непривилегированного пользователя, чтобы приложение не работало от root внутри контейнера.
+# Это повышает безопасность: ограничивает доступ к файловой системе, уменьшает последствия уязвимостей.
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY --from=builder /app/server .

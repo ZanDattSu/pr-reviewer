@@ -9,5 +9,5 @@ import (
 type TeamRepository interface {
 	AddTeam(ctx context.Context, team model.Team) (model.Team, error)
 	GetTeam(ctx context.Context, teamName string) (model.Team, error)
-	GetTeamActiveMembers(ctx context.Context, userID string) ([]string, error)
+	GetTeamActiveMembersWithoutUser(ctx context.Context, userID string) ([]string, error)
 }

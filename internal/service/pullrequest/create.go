@@ -4,51 +4,52 @@ import (
 	"context"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
+	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 )
 
-const (
-	pgForeignKeyErr = "23503"
-)
-
-/*func (r *prRepository) CreatePullRequest(ctx context.Context, pullRequestID, pullRequestName, authorID string) (model.PullRequest, error) {
-	pr := model.PullRequest{
-		PullRequestID:   pullRequestID,
-		PullRequestName: pullRequestName,
-		AuthorID:        authorID,
-		Status:          model.StatusOpen,
-	}
-
-	const insertQuery = `
-						INSERT INTO pull_requests (pull_request_id, pull_request_name, author_id, status_id)
-						VALUES ($1, $2, $3, $4)
-						RETURNING created_at`
-	repoStatus := converter.ServicePRStatusToRepo(pr.Status)
-
-	var createdAt time.Time
-	err := r.pool.QueryRow(ctx,
-		insertQuery,
-		pr.PullRequestID,
-		pr.PullRequestName,
-		pr.AuthorID,
-		repoStatus,
-	).Scan(&createdAt)
+func (s *prService) CreatePullRequest(
+	ctx context.Context,
+	pullRequestID,
+	pullRequestName,
+	authorID string,
+) (model.PullRequest, error) {
+	prExists, err := s.prRepo.CheckPRExists(ctx, pullRequestID)
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			switch pgErr.Code {
-			case pgForeignKeyErr:
-				return model.PullRequest{}, apperror.NewUserNotFoundError(pr.AuthorID)
-			}
-		}
 		return model.PullRequest{}, err
 	}
 
-	pr.CreatedAt = &createdAt
-	return pr, nil
-}
-*/
+	if prExists {
+		return model.PullRequest{}, apperror.NewPRExistsError(pullRequestID)
+	}
 
-func (s *prService) CreatePullRequest(ctx context.Context, pullRequestID, pullRequestName, authorID string) (model.PullRequest, error) {
-	// TODO implement me
-	panic("implement me")
+	userExists, err := s.userRepo.CheckUserExists(ctx, authorID)
+	if err != nil {
+		return model.PullRequest{}, err
+	}
+
+	if !userExists {
+		return model.PullRequest{}, apperror.NewUserNotFoundError(authorID)
+	}
+
+	teamActiveMembers, err := s.teamRepo.GetTeamActiveMembersWithoutUser(ctx, authorID)
+	if err != nil {
+		return model.PullRequest{}, err
+	}
+
+	prReviewers := pickReviewers(teamActiveMembers, 2)
+
+	pr := model.PullRequest{
+		PullRequestID:     pullRequestID,
+		PullRequestName:   pullRequestName,
+		AuthorID:          authorID,
+		Status:            model.StatusOpen,
+		AssignedReviewers: prReviewers,
+	}
+
+	createdPR, err := s.prRepo.InsertPR(ctx, pr)
+	if err != nil {
+		return model.PullRequest{}, err
+	}
+
+	return createdPR, err
 }

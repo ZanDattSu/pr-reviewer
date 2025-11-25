@@ -6,7 +6,7 @@ type Team struct {
 }
 
 type TeamMember struct {
-	UserUUID string `json:"user_uuid"`
+	UserID   string `json:"user_id"`
 	Username string `json:"username"`
 	IsActive bool   `json:"is_active"`
 }

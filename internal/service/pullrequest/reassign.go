@@ -2,91 +2,56 @@ package pullrequest
 
 import (
 	"context"
+	"slices"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
+	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 )
 
-/*
-проверяет, что PR существует
-
-проверяет, что oldReviewer назначен на PR
-
-находит активных пользователей его команды, исключая старого
-
-выбирает случайного
-
-меняет ревьювера в таблице pull_request_reviewers
-
-возвращает обновлённый PR
-*/
-
-/*func (r *prRepository) ReassignPullRequest(ctx context.Context, pullRequestID, oldUserID string) (model.PullRequest, string, error) {
-	const getPRQuery = `
-			SELECT pr.pull_request_id,
-			       pr.pull_request_name,
-			       pr.author_id,
-			       pr.status_id,
-			       array_agg(prr.reviewer_id)
-			FROM pull_requests pr
-			    LEFT JOIN pull_request_reviewers prr ON pr.pull_request_id = prr.pull_request_id
-			WHERE pr.pull_request_id = $1
-			GROUP BY pr.pull_request_id`
-
-	var pr repoModel.PullRequest
-	var oldReviewers []string
-	err := r.pool.QueryRow(ctx, getPRQuery, pullRequestID).Scan(
-		&pr.PullRequestID,
-		&pr.PullRequestName,
-		&pr.AuthorID,
-		&pr.Status,
-		&oldReviewers,
-	)
+func (s *prService) ReassignPullRequest(ctx context.Context, pullRequestID, oldReviewerID string) (model.PullRequest, string, error) {
+	pr, err := s.prRepo.GetPRWithReviewers(ctx, pullRequestID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.PullRequest{}, "", apperror.NewPRNotFoundError(pullRequestID)
-		}
 		return model.PullRequest{}, "", err
 	}
 
-	isOldReviewerAssigned := false
-	for _, oldReviewer := range oldReviewers {
-		if oldReviewer == oldUserID {
-			isOldReviewerAssigned = true
-			break
-		}
-	}
-	if !isOldReviewerAssigned {
-		return model.PullRequest{}, "", apperror.NewReviewerNotAssignedError(oldUserID)
+	if pr.Status == model.StatusMerged {
+		return model.PullRequest{}, "", apperror.NewPRMergedError(pullRequestID)
 	}
 
-	const query = `
-					SELECT u.user_id
-					FROM users u
-					LEFT JOIN pull_request_reviewers prr
-					    ON u.user_id = prr.reviewer_id AND prr.pull_request_id = $2
-					WHERE u.team_uuid = (SELECT team_uuid FROM users WHERE user_id = $1)
-					AND u.is_active IS TRUE
-					AND u.user_id <> $1
-					AND prr.reviewer_id IS NULL`
-	rows, err := r.pool.Query(ctx, query, oldUserID, pr.PullRequestID)
+	if !slices.Contains(pr.AssignedReviewers, oldReviewerID) {
+		return model.PullRequest{}, "", apperror.NewNotAssignedError(oldReviewerID)
+	}
+
+	teamActiveMembers, err := s.teamRepo.GetTeamActiveMembersWithoutUser(ctx, oldReviewerID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return model.PullRequest{}, "", apperror.NewNoCandidateError(pullRequestID)
-		}
 		return model.PullRequest{}, "", err
 	}
 
-	var prCandidate []string
-	for rows.Next() {
-		var userID string
-		if err := rows.Scan(&userID); err != nil {
-			return model.PullRequest{}, "", err
-		}
-		prCandidate = append(prCandidate, userID)
+	if len(teamActiveMembers) == 0 {
+		return model.PullRequest{}, "", apperror.NewNoCandidateError(pullRequestID)
 	}
-}*/
 
-func (s *prService) ReassignPullRequest(ctx context.Context, pullRequestID, oldUserID string) (model.PullRequest, string, error) {
-	// TODO implement me
-	panic("implement me")
+	newReviewerID := pickReviewers(teamActiveMembers, 1)[0]
+
+	if err := s.reviewerRepo.ReplaceReviewer(ctx, pullRequestID, oldReviewerID, newReviewerID); err != nil {
+		return model.PullRequest{}, "", err
+	}
+
+	pr.AssignedReviewers = updatePRReviewers(pr, oldReviewerID, newReviewerID)
+
+	return pr, newReviewerID, nil
+}
+
+func updatePRReviewers(pr model.PullRequest, oldReviewerID, newReviewerID string) []string {
+	updated := make([]string, 0, len(pr.AssignedReviewers))
+
+	for _, r := range pr.AssignedReviewers {
+		if r == oldReviewerID {
+			updated = append(updated, newReviewerID)
+		} else {
+			updated = append(updated, r)
+		}
+	}
+
+	return updated
 }

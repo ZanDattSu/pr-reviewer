@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
@@ -14,26 +15,30 @@ import (
 	"github.com/ZanDattSu/pr-reviewer/pkg/logger"
 )
 
+const PgSqlUniqueViolationErr = "23505"
+
 func (r *teamRepository) AddTeam(ctx context.Context, team model.Team) (model.Team, error) {
 	repoTeam := converter.ServiceTeamToRepo(team)
 
-	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{})
+	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel: pgx.ReadCommitted,
+	})
 	if err != nil {
 		return model.Team{}, err
 	}
+
 	defer func(tx pgx.Tx, ctx context.Context) {
-		err := tx.Rollback(ctx)
-		if err != nil {
-			logger.Warn(ctx, "Rollback", zap.Error(err))
+		if rbErr := tx.Rollback(ctx); rbErr != nil && !errors.Is(rbErr, pgx.ErrTxClosed) {
+			logger.Warn(ctx, "rollback failed", zap.Error(rbErr))
 		}
 	}(tx, ctx)
 
-	teamUUID, err := r.insertTeam(ctx, tx, repoTeam.TeamName)
+	teamID, err := r.insertTeam(ctx, tx, repoTeam.TeamName)
 	if err != nil {
 		return model.Team{}, err
 	}
 
-	err = r.upsertTeamMembers(ctx, tx, teamUUID, repoTeam.Members)
+	err = r.upsertTeamMembers(ctx, tx, teamID, repoTeam.Members)
 	if err != nil {
 		return model.Team{}, err
 	}
@@ -53,14 +58,23 @@ func (r *teamRepository) insertTeam(ctx context.Context, tx pgx.Tx, teamName str
     `
 
 	var teamID string
+
 	err := tx.QueryRow(ctx, q, teamName).Scan(&teamID)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == PgSqlUniqueViolationErr {
+			return "", apperror.NewTeamExistsError(teamName)
+		}
+		return "", err
+	}
+
 	return teamID, err
 }
 
 func (r *teamRepository) upsertTeamMembers(
 	ctx context.Context,
 	tx pgx.Tx,
-	teamUUID string,
+	teamID string,
 	members []repoModel.TeamMember,
 ) error {
 	// Возвращаем user_id чтобы проверить pgx.ErrNoRows и вернуть ошибку UserInAnotherTeam
@@ -75,23 +89,24 @@ func (r *teamRepository) upsertTeamMembers(
     `
 
 	batch := &pgx.Batch{}
+
 	for _, m := range members {
-		batch.Queue(q, m.UserUUID, m.Username, teamUUID, m.IsActive)
+		batch.Queue(q, m.UserID, m.Username, teamID, m.IsActive)
 	}
 
 	batchRes := tx.SendBatch(ctx, batch)
+
 	defer func(batchRes pgx.BatchResults) {
-		err := batchRes.Close()
-		if err != nil {
-			logger.Warn(ctx, "Batch close error", zap.Error(err))
+		if brCerr := batchRes.Close(); brCerr != nil {
+			logger.Warn(ctx, "Batch close error", zap.Error(brCerr))
 		}
 	}(batchRes)
 
 	for _, member := range members {
-		var userUUID string
-		if err := batchRes.QueryRow().Scan(&userUUID); err != nil {
+		var userID string
+		if err := batchRes.QueryRow().Scan(&userID); err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
-				return apperror.NewUserInAnotherTeamError(member.UserUUID)
+				return apperror.NewUserInAnotherTeamError(member.UserID)
 			}
 			return err
 		}

@@ -3,15 +3,19 @@ package apperror
 import "fmt"
 
 type UserNotFoundError struct {
-	userUUID string
+	userID string
 }
 
 func (e *UserNotFoundError) Error() string {
-	return fmt.Sprintf("user %s not found", e.userUUID)
+	return fmt.Sprintf("user %s not found", e.userID)
 }
 
-func NewUserNotFoundError(name string) *UserNotFoundError {
+func NewUserNotFoundError(userID string) *UserNotFoundError {
 	return &UserNotFoundError{
-		userUUID: name,
+		userID: userID,
 	}
+}
+
+func (e *UserNotFoundError) UserID() string {
+	return e.userID
 }

@@ -9,5 +9,5 @@ import (
 type PRService interface {
 	CreatePullRequest(ctx context.Context, pullRequestID, pullRequestName, authorID string) (model.PullRequest, error)
 	MergePullRequest(ctx context.Context, pullRequestID string) (model.PullRequest, error)
-	ReassignPullRequest(ctx context.Context, pullRequestID, oldUserID string) (model.PullRequest, string, error)
+	ReassignPullRequest(ctx context.Context, pullRequestID, oldReviewerID string) (model.PullRequest, string, error)
 }

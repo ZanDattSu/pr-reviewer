@@ -374,10 +374,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [ pull_request_id, old_user_id ]
+              required: [ pull_request_id, old_reviewer_id ]
               properties:
                 pull_request_id: { type: string }
-                old_user_id: { type: string }
+                old_reviewer_id: { type: string }
             example:
               pull_request_id: pr-1001
               old_reviewer_id: u2
@@ -455,3 +455,8 @@ paths:
                     pull_request_name: Add search
                     author_id: u1
                     status: OPEN
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }

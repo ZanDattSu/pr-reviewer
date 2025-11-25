@@ -18,7 +18,7 @@ func RepoTeamToService(team repoModel.Team) model.Team {
 
 func RepoTeamMemberToService(m repoModel.TeamMember) model.TeamMember {
 	return model.TeamMember{
-		UserUUID: m.UserUUID,
+		UserID:   m.UserID,
 		Username: m.Username,
 		IsActive: m.IsActive,
 	}
@@ -26,9 +26,11 @@ func RepoTeamMemberToService(m repoModel.TeamMember) model.TeamMember {
 
 func RepoTeamMembersToService(ms []repoModel.TeamMember) []model.TeamMember {
 	out := make([]model.TeamMember, 0, len(ms))
+
 	for _, m := range ms {
 		out = append(out, RepoTeamMemberToService(m))
 	}
+
 	return out
 }
 
@@ -43,7 +45,7 @@ func ServiceTeamToRepo(team model.Team) repoModel.Team {
 
 func ServiceTeamMemberToRepo(m model.TeamMember) repoModel.TeamMember {
 	return repoModel.TeamMember{
-		UserUUID: m.UserUUID,
+		UserID:   m.UserID,
 		Username: m.Username,
 		IsActive: m.IsActive,
 	}
@@ -51,9 +53,11 @@ func ServiceTeamMemberToRepo(m model.TeamMember) repoModel.TeamMember {
 
 func ServiceTeamMembersToRepo(ms []model.TeamMember) []repoModel.TeamMember {
 	out := make([]repoModel.TeamMember, 0, len(ms))
+
 	for _, m := range ms {
 		out = append(out, ServiceTeamMemberToRepo(m))
 	}
+
 	return out
 }
 
@@ -93,12 +97,17 @@ func RepoPRToService(pr repoModel.PullRequest) model.PullRequest {
 
 func RepoPRStatusToService(s repoModel.Status) model.Status {
 	switch s {
+
 	case repoModel.StatusOpen:
+
 		return model.StatusOpen
 	case repoModel.StatusMerged:
+
 		return model.StatusMerged
 	default:
+
 		return model.StatusUnknown
+
 	}
 }
 
@@ -116,12 +125,17 @@ func ServicePRToRepo(pr model.PullRequest) repoModel.PullRequest {
 
 func ServicePRStatusToRepo(s model.Status) repoModel.Status {
 	switch s {
+
 	case model.StatusOpen:
+
 		return repoModel.StatusOpen
 	case model.StatusMerged:
+
 		return repoModel.StatusMerged
 	default:
+
 		return repoModel.StatusUnknown
+
 	}
 }
 
@@ -140,9 +154,11 @@ func RepoUserAssignedPRToService(pr repoModel.UserAssignedPR) model.UserAssigned
 
 func RepoUserAssignedPRsToService(prs []repoModel.UserAssignedPR) []model.UserAssignedPR {
 	out := make([]model.UserAssignedPR, 0, len(prs))
+
 	for _, pr := range prs {
 		out = append(out, RepoUserAssignedPRToService(pr))
 	}
+
 	return out
 }
 
@@ -159,8 +175,10 @@ func ServiceUserAssignedPRToRepo(pr model.UserAssignedPR) repoModel.UserAssigned
 
 func ServiceUserAssignedPRsRepo(prs []model.UserAssignedPR) []repoModel.UserAssignedPR {
 	out := make([]repoModel.UserAssignedPR, 0, len(prs))
+
 	for _, pr := range prs {
 		out = append(out, ServiceUserAssignedPRToRepo(pr))
 	}
+
 	return out
 }

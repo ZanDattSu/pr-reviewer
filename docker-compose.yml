@@ -5,21 +5,25 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    container_name: my-go-server
+    container_name: pr-reviewer
+
+    env_file:
+      - .env
 
     ports:
       - "${HTTP_PORT}:8080"
 
-    env_file:
-      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${HTTP_PORT}/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
 
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-
-    networks:
-      - app-network
 
   postgres:
     image: ${POSTGRES_IMAGE_NAME}
@@ -45,14 +49,6 @@ services:
     # Автоматически перезапускаем контейнер, если он аварийно завершился.
     # Если контейнер был остановлен вручную — не перезапускаем
     restart: unless-stopped
-
-    networks:
-      - app-network
-
-# Docker network для возможного расширения проекта
-networks:
-  app-network:
-    driver: bridge
 
 volumes:
   pgdata:

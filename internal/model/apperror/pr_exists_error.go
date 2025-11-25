@@ -6,6 +6,10 @@ type PRExistsError struct {
 	pullRequestID string
 }
 
+func (e *PRExistsError) PullRequestID() string {
+	return e.pullRequestID
+}
+
 func (e *PRExistsError) Error() string {
 	return fmt.Sprintf("pull request %s already exists", e.pullRequestID)
 }

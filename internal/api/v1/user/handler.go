@@ -1,12 +1,11 @@
-package handler
+package user
 
 import (
-	api "github.com/ZanDattSu/pr-reviewer/internal/api/v1/user"
 	userService "github.com/ZanDattSu/pr-reviewer/internal/service/user"
 )
 
 // Компиляторная проверка: убеждаемся, что *userHandler реализует интерфейс UserApi.
-var _ api.UserApi = (*userHandler)(nil)
+var _ UserApi = (*userHandler)(nil)
 
 type userHandler struct {
 	userService userService.UserService

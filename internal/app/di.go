@@ -9,16 +9,13 @@ import (
 	reviewerApi "github.com/ZanDattSu/pr-reviewer/internal/api/v1"
 	"github.com/ZanDattSu/pr-reviewer/internal/api/v1/health"
 	prApi "github.com/ZanDattSu/pr-reviewer/internal/api/v1/pullrequest"
-	prHandler "github.com/ZanDattSu/pr-reviewer/internal/api/v1/pullrequest/handler"
 	teamApi "github.com/ZanDattSu/pr-reviewer/internal/api/v1/team"
 	userApi "github.com/ZanDattSu/pr-reviewer/internal/api/v1/user"
-	userHandler "github.com/ZanDattSu/pr-reviewer/internal/api/v1/user/handler"
 	"github.com/ZanDattSu/pr-reviewer/internal/config"
 	prRepository "github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest"
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/reviewer"
-	teamRepository "github.com/ZanDattSu/pr-reviewer/internal/repository/team"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/tx"
-	userRepository "github.com/ZanDattSu/pr-reviewer/internal/repository/user"
+	teamRepo "github.com/ZanDattSu/pr-reviewer/internal/repository/team"
+	userRepo "github.com/ZanDattSu/pr-reviewer/internal/repository/user"
 	prService "github.com/ZanDattSu/pr-reviewer/internal/service/pullrequest"
 	teamService "github.com/ZanDattSu/pr-reviewer/internal/service/team"
 	userService "github.com/ZanDattSu/pr-reviewer/internal/service/user"
@@ -39,10 +36,9 @@ type diContainer struct {
 
 	prRepository       prRepository.PullRequestRepository
 	reviewerRepository reviewer.ReviewerRepository
-	teamRepository     teamRepository.TeamRepository
-	userRepository     userRepository.UserRepository
+	teamRepository     teamRepo.TeamRepository
+	userRepository     userRepo.UserRepository
 
-	tx             tx.Provider
 	postgreSQLPool *pgxpool.Pool
 }
 
@@ -64,7 +60,7 @@ func (di *diContainer) Api(ctx context.Context) reviewerApi.Api {
 	return di.api
 }
 
-func (di *diContainer) HealthApi(ctx context.Context) health.HealthApi {
+func (di *diContainer) HealthApi(_ context.Context) health.HealthApi {
 	if di.healthApi == nil {
 		di.healthApi = health.NewHealthHandler()
 	}
@@ -73,7 +69,7 @@ func (di *diContainer) HealthApi(ctx context.Context) health.HealthApi {
 
 func (di *diContainer) PRApi(ctx context.Context) prApi.PRApi {
 	if di.prApi == nil {
-		di.prApi = prHandler.NewPrHandler(di.PRService(ctx))
+		di.prApi = prApi.NewPrHandler(di.PRService(ctx))
 	}
 	return di.prApi
 }
@@ -87,7 +83,7 @@ func (di *diContainer) TeamApi(ctx context.Context) teamApi.TeamApi {
 
 func (di *diContainer) UserApi(ctx context.Context) userApi.UserApi {
 	if di.userApi == nil {
-		di.userApi = userHandler.NewUserHandler(di.UserService(ctx))
+		di.userApi = userApi.NewUserHandler(di.UserService(ctx))
 	}
 	return di.userApi
 }
@@ -100,7 +96,7 @@ func (di *diContainer) PRService(ctx context.Context) prService.PRService {
 			di.PRRepository(ctx),
 			di.ReviewerRepository(ctx),
 			di.TeamRepository(ctx),
-			di.TxProvider(ctx),
+			di.UserRepository(ctx),
 		)
 	}
 	return di.prService
@@ -136,25 +132,18 @@ func (di *diContainer) ReviewerRepository(ctx context.Context) reviewer.Reviewer
 	return di.reviewerRepository
 }
 
-func (di *diContainer) TeamRepository(ctx context.Context) teamRepository.TeamRepository {
+func (di *diContainer) TeamRepository(ctx context.Context) teamRepo.TeamRepository {
 	if di.teamRepository == nil {
-		di.teamRepository = teamRepository.NewTeamRepository(di.PostgreSQLPool(ctx))
+		di.teamRepository = teamRepo.NewTeamRepository(di.PostgreSQLPool(ctx))
 	}
 	return di.teamRepository
 }
 
-func (di *diContainer) UserRepository(ctx context.Context) userRepository.UserRepository {
+func (di *diContainer) UserRepository(ctx context.Context) userRepo.UserRepository {
 	if di.userRepository == nil {
-		di.userRepository = userRepository.NewUserRepository(di.PostgreSQLPool(ctx))
+		di.userRepository = userRepo.NewUserRepository(di.PostgreSQLPool(ctx))
 	}
 	return di.userRepository
-}
-
-func (di *diContainer) TxProvider(ctx context.Context) tx.Provider {
-	if di.tx == nil {
-		di.tx = tx.NewTxProvider(di.PostgreSQLPool(ctx))
-	}
-	return di.tx
 }
 
 func (di *diContainer) PostgreSQLPool(ctx context.Context) *pgxpool.Pool {

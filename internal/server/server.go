@@ -39,7 +39,6 @@ func NewHTTPServer(address string, api reviewerV1.Handler) (*HTTPServer, error) 
 		// удерживая соединения открытыми и истощая пул доступных соединений на сервере.
 		// ReadHeaderTimeout принудительно закрывает соединение,
 		// если клиент не успел отправить все заголовки за отведенное время.
-
 	}
 
 	return &HTTPServer{
