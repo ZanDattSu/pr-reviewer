@@ -182,3 +182,25 @@ func ServiceUserAssignedPRsRepo(prs []model.UserAssignedPR) []repoModel.UserAssi
 
 	return out
 }
+
+func RepoUserStatsToService(s []repoModel.UserStats) []model.UserStats {
+	out := make([]model.UserStats, 0, len(s))
+	for _, stats := range s {
+		out = append(out, model.UserStats{
+			UserID:  stats.UserID,
+			TotalPR: stats.TotalPR,
+		})
+	}
+	return out
+}
+
+func ServiceUserStatsToRepo(s []model.UserStats) []repoModel.UserStats {
+	out := make([]repoModel.UserStats, 0, len(s))
+	for _, stats := range s {
+		out = append(out, repoModel.UserStats{
+			UserID:  stats.UserID,
+			TotalPR: stats.TotalPR,
+		})
+	}
+	return out
+}

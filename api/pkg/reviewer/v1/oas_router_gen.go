@@ -220,6 +220,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
+				case 'd': // Prefix: "deactivate"
+
+					if l := len("deactivate"); len(elem) >= l && elem[0:l] == "deactivate" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleUsersDeactivatePostRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
 				case 'g': // Prefix: "getReview"
 
 					if l := len("getReview"); len(elem) >= l && elem[0:l] == "getReview" {
@@ -240,24 +260,58 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 
-				case 's': // Prefix: "setIsActive"
+				case 's': // Prefix: "s"
 
-					if l := len("setIsActive"); len(elem) >= l && elem[0:l] == "setIsActive" {
+					if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "POST":
-							s.handleUsersSetIsActivePostRequest([0]string{}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "POST")
+						break
+					}
+					switch elem[0] {
+					case 'e': // Prefix: "etIsActive"
+
+						if l := len("etIsActive"); len(elem) >= l && elem[0:l] == "etIsActive" {
+							elem = elem[l:]
+						} else {
+							break
 						}
 
-						return
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleUsersSetIsActivePostRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					case 't': // Prefix: "tats"
+
+						if l := len("tats"); len(elem) >= l && elem[0:l] == "tats" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleUsersStatsGetRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
 					}
 
 				}
@@ -539,6 +593,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
+				case 'd': // Prefix: "deactivate"
+
+					if l := len("deactivate"); len(elem) >= l && elem[0:l] == "deactivate" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = UsersDeactivatePostOperation
+							r.summary = "Массовая деактивация пользователей и безопасное переназначение ревьюверов в открытых PR"
+							r.operationID = ""
+							r.pathPattern = "/users/deactivate"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
 				case 'g': // Prefix: "getReview"
 
 					if l := len("getReview"); len(elem) >= l && elem[0:l] == "getReview" {
@@ -563,28 +641,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 
-				case 's': // Prefix: "setIsActive"
+				case 's': // Prefix: "s"
 
-					if l := len("setIsActive"); len(elem) >= l && elem[0:l] == "setIsActive" {
+					if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "POST":
-							r.name = UsersSetIsActivePostOperation
-							r.summary = "Установить флаг активности пользователя"
-							r.operationID = ""
-							r.pathPattern = "/users/setIsActive"
-							r.args = args
-							r.count = 0
-							return r, true
-						default:
-							return
+						break
+					}
+					switch elem[0] {
+					case 'e': // Prefix: "etIsActive"
+
+						if l := len("etIsActive"); len(elem) >= l && elem[0:l] == "etIsActive" {
+							elem = elem[l:]
+						} else {
+							break
 						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = UsersSetIsActivePostOperation
+								r.summary = "Установить флаг активности пользователя"
+								r.operationID = ""
+								r.pathPattern = "/users/setIsActive"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 't': // Prefix: "tats"
+
+						if l := len("tats"); len(elem) >= l && elem[0:l] == "tats" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = UsersStatsGetOperation
+								r.summary = "Статистика количества PR по пользователям"
+								r.operationID = ""
+								r.pathPattern = "/users/stats"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				}

@@ -4,8 +4,6 @@ FROM golang:1.24.1 AS builder
 
 WORKDIR /app
 
-ENV GOPROXY=direct
-
 # Копируем файлы go.mod и go.sum отдельно для кеширования зависимостей
 COPY go.mod go.sum ./
 

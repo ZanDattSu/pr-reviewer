@@ -12,6 +12,8 @@ const (
 	PullRequestReassignPostOperation OperationName = "PullRequestReassignPost"
 	TeamAddPostOperation             OperationName = "TeamAddPost"
 	TeamGetGetOperation              OperationName = "TeamGetGet"
+	UsersDeactivatePostOperation     OperationName = "UsersDeactivatePost"
 	UsersGetReviewGetOperation       OperationName = "UsersGetReviewGet"
 	UsersSetIsActivePostOperation    OperationName = "UsersSetIsActivePost"
+	UsersStatsGetOperation           OperationName = "UsersStatsGet"
 )

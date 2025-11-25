@@ -67,6 +67,20 @@ func encodeTeamAddPostRequest(
 	return nil
 }
 
+func encodeUsersDeactivatePostRequest(
+	req *UsersDeactivatePostReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUsersSetIsActivePostRequest(
 	req *UsersSetIsActivePostReq,
 	r *http.Request,

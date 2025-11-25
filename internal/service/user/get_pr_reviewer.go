@@ -7,8 +7,8 @@ import (
 	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 )
 
-func (u *userService) UserGetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
-	exists, err := u.userRepo.CheckUserExists(ctx, userID)
+func (s *userService) UserGetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
+	exists, err := s.userRepo.CheckUserExists(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -17,5 +17,5 @@ func (u *userService) UserGetPRReviewer(ctx context.Context, userID string) ([]m
 		return nil, apperror.NewUserNotFoundError(userID)
 	}
 
-	return u.userRepo.UserGetPRReviewer(ctx, userID)
+	return s.userRepo.UserGetPRReviewer(ctx, userID)
 }

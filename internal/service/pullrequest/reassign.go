@@ -31,7 +31,7 @@ func (s *prService) ReassignPullRequest(ctx context.Context, pullRequestID, oldR
 		return model.PullRequest{}, "", apperror.NewNoCandidateError(pullRequestID)
 	}
 
-	newReviewerID := pickReviewers(teamActiveMembers, 1)[0]
+	newReviewerID := PickReviewers(teamActiveMembers, 1)[0]
 
 	if err := s.reviewerRepo.ReplaceReviewer(ctx, pullRequestID, oldReviewerID, newReviewerID); err != nil {
 		return model.PullRequest{}, "", err

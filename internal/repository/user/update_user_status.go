@@ -14,9 +14,7 @@ import (
 
 func (r *userRepository) UpdateUserStatus(
 	ctx context.Context,
-
 	userID string,
-
 	isActive bool,
 ) (model.User, error) {
 	const q = `

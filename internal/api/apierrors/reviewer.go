@@ -34,6 +34,13 @@ func NewUserNotFoundErr(userID string) reviewerV1.ErrorResponseError {
 	}
 }
 
+func NewNoStatsError() reviewerV1.ErrorResponseError {
+	return reviewerV1.ErrorResponseError{
+		Code:    reviewerV1.ErrorResponseErrorCodeNOTFOUND,
+		Message: "no stats available",
+	}
+}
+
 func NewTeamNotFoundErr(teamName string) reviewerV1.ErrorResponseError {
 	return reviewerV1.ErrorResponseError{
 		Code:    reviewerV1.ErrorResponseErrorCodeNOTFOUND,

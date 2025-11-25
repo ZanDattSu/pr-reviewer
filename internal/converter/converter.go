@@ -1,8 +1,6 @@
 package converter
 
 import (
-	"time"
-
 	api "github.com/ZanDattSu/pr-reviewer/api/pkg/reviewer/v1"
 	service "github.com/ZanDattSu/pr-reviewer/internal/model"
 )
@@ -111,34 +109,6 @@ func ServicePRToAPI(pr service.PullRequest) api.PullRequest {
 	}
 
 	return apiPR
-}
-
-func APIToServicePR(pr api.PullRequest) service.PullRequest {
-	var reviewers []string
-
-	for i := range pr.AssignedReviewers {
-		reviewers[i] = pr.AssignedReviewers[i]
-	}
-
-	var createdAt *time.Time
-	if v, ok := pr.CreatedAt.Get(); ok {
-		createdAt = &v
-	}
-
-	var mergedAt *time.Time
-	if v, ok := pr.MergedAt.Get(); ok {
-		mergedAt = &v
-	}
-
-	return service.PullRequest{
-		PullRequestID:     pr.PullRequestID,
-		PullRequestName:   pr.PullRequestName,
-		AuthorID:          pr.AuthorID,
-		Status:            service.Status(pr.Status),
-		AssignedReviewers: reviewers,
-		CreatedAt:         createdAt,
-		MergedAt:          mergedAt,
-	}
 }
 
 // USER ASSIGNED PR

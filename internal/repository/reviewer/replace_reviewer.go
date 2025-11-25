@@ -40,8 +40,6 @@ func (r *reviewerRepository) ReplaceReviewer(ctx context.Context, prID, oldRevie
 		return err
 	}
 
-	// Если удалено 0 строк => старый ревьювер НЕ назначен
-
 	if cmdTag.RowsAffected() == 0 {
 		return apperror.NewNotAssignedError(oldReviewerID)
 	}

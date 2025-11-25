@@ -38,24 +38,16 @@ func (r *teamRepository) getTeamRow(ctx context.Context, teamName string) (repoM
 	const q = `SELECT team_name FROM teams WHERE team_name = $1`
 
 	var t repoModel.Team
-
-	err := r.pool.QueryRow(ctx, q, teamName).Scan(
-
-		&t.TeamName,
-	)
+	err := r.pool.QueryRow(ctx, q, teamName).Scan(&t.TeamName)
 
 	return t, err
 }
 
 func (r *teamRepository) getTeamMembers(ctx context.Context, teamName string) ([]repoModel.TeamMember, error) {
 	const q = `
-
         SELECT u.user_id, u.username, u.is_active
-
         FROM users u
-
         JOIN teams t ON u.team_id = t.team_id
-
         WHERE t.team_name = $1
 
     `
@@ -64,19 +56,15 @@ func (r *teamRepository) getTeamMembers(ctx context.Context, teamName string) ([
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
 
 	var members []repoModel.TeamMember
 
 	for rows.Next() {
-
 		var m repoModel.TeamMember
-
 		if err := rows.Scan(&m.UserID, &m.Username, &m.IsActive); err != nil {
 			return nil, err
 		}
-
 		members = append(members, m)
 
 	}

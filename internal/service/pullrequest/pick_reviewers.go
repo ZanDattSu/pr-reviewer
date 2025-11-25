@@ -2,13 +2,13 @@ package pullrequest
 
 import "math/rand"
 
-// pickReviewers выбирает reviewersCount случайных уникальных ревьюверов
+// PickReviewers выбирает reviewersCount случайных уникальных ревьюверов
 // из массива activeTeamMember.
 // Частично использует алгоритм Фишера–Йетса
 //
 // использование math/rand безопасно — выбор ревьюверов не связан с криптографией.
 // crypto/rand - медленнее, сложнее и не дает никакой пользы здесь.
-func pickReviewers(activeTeamMembers []string, reviewersCount int) []string {
+func PickReviewers(activeTeamMembers []string, reviewersCount int) []string {
 	n := len(activeTeamMembers)
 	if n <= reviewersCount {
 		return copySlice(activeTeamMembers)

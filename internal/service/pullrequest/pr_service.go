@@ -8,7 +8,6 @@ import (
 )
 
 // Компиляторная проверка: убеждаемся, что *prService реализует интерфейс PRService.
-
 var _ PRService = (*prService)(nil)
 
 type prService struct {

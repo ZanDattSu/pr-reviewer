@@ -5,10 +5,13 @@ package reviewer_v1
 import (
 	"net/http"
 
+	"github.com/go-faster/errors"
+
 	"github.com/ogen-go/ogen/conv"
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/uri"
+	"github.com/ogen-go/ogen/validate"
 )
 
 // TeamGetGetParams is parameters of GET /team/get operation.
@@ -120,6 +123,199 @@ func decodeUsersGetReviewGetParams(args [0]string, argsEscaped bool, r *http.Req
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "user_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UsersStatsGetParams is parameters of GET /users/stats operation.
+type UsersStatsGetParams struct {
+	// Вернуть только top-N пользователей.
+	Top OptInt
+	// Учитывать только активных пользователей.
+	OnlyActive OptBool
+	// Учитывать только PR со статусом OPEN.
+	OnlyOpen OptBool
+}
+
+func unpackUsersStatsGetParams(packed middleware.Parameters) (params UsersStatsGetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "top",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Top = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "only_active",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.OnlyActive = v.(OptBool)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "only_open",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.OnlyOpen = v.(OptBool)
+		}
+	}
+	return params
+}
+
+func decodeUsersStatsGetParams(args [0]string, argsEscaped bool, r *http.Request) (params UsersStatsGetParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: top.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "top",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotTopVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotTopVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Top.SetTo(paramsDotTopVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.Top.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        false,
+							Max:           0,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "top",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: only_active.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "only_active",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotOnlyActiveVal bool
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToBool(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotOnlyActiveVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.OnlyActive.SetTo(paramsDotOnlyActiveVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "only_active",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: only_open.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "only_open",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotOnlyOpenVal bool
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToBool(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotOnlyOpenVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.OnlyOpen.SetTo(paramsDotOnlyOpenVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "only_open",
 			In:   "query",
 			Err:  err,
 		}

@@ -6,6 +6,6 @@ import (
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
 )
 
-func (t *teamService) GetTeam(ctx context.Context, teamName string) (model.Team, error) {
-	return t.teamRepo.GetTeam(ctx, teamName)
+func (s *teamService) GetTeam(ctx context.Context, teamName string) (model.Team, error) {
+	return s.teamRepo.GetTeam(ctx, teamName)
 }

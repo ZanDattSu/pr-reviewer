@@ -66,6 +66,15 @@ type Invoker interface {
 	//
 	// GET /team/get
 	TeamGetGet(ctx context.Context, params TeamGetGetParams) (TeamGetGetRes, error)
+	// UsersDeactivatePost invokes POST /users/deactivate operation.
+	//
+	// Деактивирует переданных пользователей (is_active = false) и
+	// для всех открытых PR, где они были назначены
+	// ревьюверами, пытается найти активную замену из их
+	// команды.
+	//
+	// POST /users/deactivate
+	UsersDeactivatePost(ctx context.Context, request *UsersDeactivatePostReq) (UsersDeactivatePostRes, error)
 	// UsersGetReviewGet invokes GET /users/getReview operation.
 	//
 	// Получить PR'ы, где пользователь назначен ревьювером.
@@ -78,6 +87,17 @@ type Invoker interface {
 	//
 	// POST /users/setIsActive
 	UsersSetIsActivePost(ctx context.Context, request *UsersSetIsActivePostReq) (UsersSetIsActivePostRes, error)
+	// UsersStatsGet invokes GET /users/stats operation.
+	//
+	// Возвращает агрегированную статистику по
+	// пользователям: сколько PR создано каждым
+	// пользователем. Поддерживаются фильтры: - `top`: вернуть
+	// только топ-N пользователей - `only_active`: учитывать только
+	// активных пользователей - `only_open`: учитывать только PR в
+	// статусе OPEN.
+	//
+	// GET /users/stats
+	UsersStatsGet(ctx context.Context, params UsersStatsGetParams) (UsersStatsGetRes, error)
 }
 
 // Client implements OAS client.
@@ -582,6 +602,83 @@ func (c *Client) sendTeamGetGet(ctx context.Context, params TeamGetGetParams) (r
 	return result, nil
 }
 
+// UsersDeactivatePost invokes POST /users/deactivate operation.
+//
+// Деактивирует переданных пользователей (is_active = false) и
+// для всех открытых PR, где они были назначены
+// ревьюверами, пытается найти активную замену из их
+// команды.
+//
+// POST /users/deactivate
+func (c *Client) UsersDeactivatePost(ctx context.Context, request *UsersDeactivatePostReq) (UsersDeactivatePostRes, error) {
+	res, err := c.sendUsersDeactivatePost(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendUsersDeactivatePost(ctx context.Context, request *UsersDeactivatePostReq) (res UsersDeactivatePostRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/users/deactivate"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UsersDeactivatePostOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/users/deactivate"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUsersDeactivatePostRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUsersDeactivatePostResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // UsersGetReviewGet invokes GET /users/getReview operation.
 //
 // Получить PR'ы, где пользователь назначен ревьювером.
@@ -738,6 +835,137 @@ func (c *Client) sendUsersSetIsActivePost(ctx context.Context, request *UsersSet
 
 	stage = "DecodeResponse"
 	result, err := decodeUsersSetIsActivePostResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UsersStatsGet invokes GET /users/stats operation.
+//
+// Возвращает агрегированную статистику по
+// пользователям: сколько PR создано каждым
+// пользователем. Поддерживаются фильтры: - `top`: вернуть
+// только топ-N пользователей - `only_active`: учитывать только
+// активных пользователей - `only_open`: учитывать только PR в
+// статусе OPEN.
+//
+// GET /users/stats
+func (c *Client) UsersStatsGet(ctx context.Context, params UsersStatsGetParams) (UsersStatsGetRes, error) {
+	res, err := c.sendUsersStatsGet(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendUsersStatsGet(ctx context.Context, params UsersStatsGetParams) (res UsersStatsGetRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/users/stats"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UsersStatsGetOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/users/stats"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "top" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "top",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Top.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "only_active" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "only_active",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.OnlyActive.Get(); ok {
+				return e.EncodeValue(conv.BoolToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "only_open" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "only_open",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.OnlyOpen.Get(); ok {
+				return e.EncodeValue(conv.BoolToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUsersStatsGetResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

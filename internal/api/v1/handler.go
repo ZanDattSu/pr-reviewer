@@ -38,12 +38,20 @@ func (a *mainHandler) TeamGetGet(ctx context.Context, params reviewerV1.TeamGetG
 	return a.TeamApi.TeamGetGet(ctx, params)
 }
 
+func (a *mainHandler) UsersDeactivatePost(ctx context.Context, req *reviewerV1.UsersDeactivatePostReq) (reviewerV1.UsersDeactivatePostRes, error) {
+	return a.UsersApi.UsersDeactivatePost(ctx, req)
+}
+
 func (a *mainHandler) UsersSetIsActivePost(ctx context.Context, req *reviewerV1.UsersSetIsActivePostReq) (reviewerV1.UsersSetIsActivePostRes, error) {
 	return a.UsersApi.UsersSetIsActivePost(ctx, req)
 }
 
 func (a *mainHandler) UsersGetReviewGet(ctx context.Context, params reviewerV1.UsersGetReviewGetParams) (reviewerV1.UsersGetReviewGetRes, error) {
 	return a.UsersApi.UsersGetReviewGet(ctx, params)
+}
+
+func (a *mainHandler) UsersStatsGet(ctx context.Context, params reviewerV1.UsersStatsGetParams) (reviewerV1.UsersStatsGetRes, error) {
+	return a.UsersApi.UsersStatsGet(ctx, params)
 }
 
 func (a *mainHandler) PullRequestCreatePost(ctx context.Context, req *reviewerV1.PullRequestCreatePostReq) (reviewerV1.PullRequestCreatePostRes, error) {

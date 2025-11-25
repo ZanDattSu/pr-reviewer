@@ -25,10 +25,18 @@ type TeamGetGetRes interface {
 	teamGetGetRes()
 }
 
+type UsersDeactivatePostRes interface {
+	usersDeactivatePostRes()
+}
+
 type UsersGetReviewGetRes interface {
 	usersGetReviewGetRes()
 }
 
 type UsersSetIsActivePostRes interface {
 	usersSetIsActivePostRes()
+}
+
+type UsersStatsGetRes interface {
+	usersStatsGetRes()
 }

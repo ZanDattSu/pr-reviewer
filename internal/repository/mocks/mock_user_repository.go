@@ -79,6 +79,126 @@ func (_c *UserRepository_CheckUserExists_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// DeactivateUsersAndReassign provides a mock function with given fields: ctx, userIDs
+func (_m *UserRepository) DeactivateUsersAndReassign(ctx context.Context, userIDs []string) (map[string]string, error) {
+	ret := _m.Called(ctx, userIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeactivateUsersAndReassign")
+	}
+
+	var r0 map[string]string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) (map[string]string, error)); ok {
+		return rf(ctx, userIDs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []string) map[string]string); ok {
+		r0 = rf(ctx, userIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []string) error); ok {
+		r1 = rf(ctx, userIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserRepository_DeactivateUsersAndReassign_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeactivateUsersAndReassign'
+type UserRepository_DeactivateUsersAndReassign_Call struct {
+	*mock.Call
+}
+
+// DeactivateUsersAndReassign is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userIDs []string
+func (_e *UserRepository_Expecter) DeactivateUsersAndReassign(ctx interface{}, userIDs interface{}) *UserRepository_DeactivateUsersAndReassign_Call {
+	return &UserRepository_DeactivateUsersAndReassign_Call{Call: _e.mock.On("DeactivateUsersAndReassign", ctx, userIDs)}
+}
+
+func (_c *UserRepository_DeactivateUsersAndReassign_Call) Run(run func(ctx context.Context, userIDs []string)) *UserRepository_DeactivateUsersAndReassign_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]string))
+	})
+	return _c
+}
+
+func (_c *UserRepository_DeactivateUsersAndReassign_Call) Return(_a0 map[string]string, _a1 error) *UserRepository_DeactivateUsersAndReassign_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserRepository_DeactivateUsersAndReassign_Call) RunAndReturn(run func(context.Context, []string) (map[string]string, error)) *UserRepository_DeactivateUsersAndReassign_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUserStats provides a mock function with given fields: ctx, top, onlyActive, onlyOpen
+func (_m *UserRepository) GetUserStats(ctx context.Context, top int, onlyActive bool, onlyOpen bool) ([]model.UserStats, error) {
+	ret := _m.Called(ctx, top, onlyActive, onlyOpen)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserStats")
+	}
+
+	var r0 []model.UserStats
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int, bool, bool) ([]model.UserStats, error)); ok {
+		return rf(ctx, top, onlyActive, onlyOpen)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int, bool, bool) []model.UserStats); ok {
+		r0 = rf(ctx, top, onlyActive, onlyOpen)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.UserStats)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int, bool, bool) error); ok {
+		r1 = rf(ctx, top, onlyActive, onlyOpen)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserRepository_GetUserStats_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserStats'
+type UserRepository_GetUserStats_Call struct {
+	*mock.Call
+}
+
+// GetUserStats is a helper method to define mock.On call
+//   - ctx context.Context
+//   - top int
+//   - onlyActive bool
+//   - onlyOpen bool
+func (_e *UserRepository_Expecter) GetUserStats(ctx interface{}, top interface{}, onlyActive interface{}, onlyOpen interface{}) *UserRepository_GetUserStats_Call {
+	return &UserRepository_GetUserStats_Call{Call: _e.mock.On("GetUserStats", ctx, top, onlyActive, onlyOpen)}
+}
+
+func (_c *UserRepository_GetUserStats_Call) Run(run func(ctx context.Context, top int, onlyActive bool, onlyOpen bool)) *UserRepository_GetUserStats_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int), args[2].(bool), args[3].(bool))
+	})
+	return _c
+}
+
+func (_c *UserRepository_GetUserStats_Call) Return(_a0 []model.UserStats, _a1 error) *UserRepository_GetUserStats_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserRepository_GetUserStats_Call) RunAndReturn(run func(context.Context, int, bool, bool) ([]model.UserStats, error)) *UserRepository_GetUserStats_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateUserStatus provides a mock function with given fields: ctx, userID, isActive
 func (_m *UserRepository) UpdateUserStatus(ctx context.Context, userID string, isActive bool) (model.User, error) {
 	ret := _m.Called(ctx, userID, isActive)

@@ -36,7 +36,7 @@ func (s *prService) CreatePullRequest(
 		return model.PullRequest{}, err
 	}
 
-	prReviewers := pickReviewers(teamActiveMembers, 2)
+	prReviewers := PickReviewers(teamActiveMembers, 2)
 
 	pr := model.PullRequest{
 		PullRequestID:     pullRequestID,

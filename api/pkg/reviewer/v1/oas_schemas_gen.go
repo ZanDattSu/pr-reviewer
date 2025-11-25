@@ -8,6 +8,34 @@ import (
 	"github.com/go-faster/errors"
 )
 
+// Ref: #/components/schemas/DeactivateResultItem
+type DeactivateResultItem struct {
+	// Идентификатор PR, в котором произошла замена ревьювера.
+	PullRequestID string `json:"pull_request_id"`
+	// User_id нового ревьювера.
+	ReplacedBy string `json:"replaced_by"`
+}
+
+// GetPullRequestID returns the value of PullRequestID.
+func (s *DeactivateResultItem) GetPullRequestID() string {
+	return s.PullRequestID
+}
+
+// GetReplacedBy returns the value of ReplacedBy.
+func (s *DeactivateResultItem) GetReplacedBy() string {
+	return s.ReplacedBy
+}
+
+// SetPullRequestID sets the value of PullRequestID.
+func (s *DeactivateResultItem) SetPullRequestID(val string) {
+	s.PullRequestID = val
+}
+
+// SetReplacedBy sets the value of ReplacedBy.
+func (s *DeactivateResultItem) SetReplacedBy(val string) {
+	s.ReplacedBy = val
+}
+
 // Ref: #/components/schemas/ErrorResponse
 type ErrorResponse struct {
 	Error ErrorResponseError `json:"error"`
@@ -29,6 +57,7 @@ func (*ErrorResponse) teamAddPostRes()          {}
 func (*ErrorResponse) teamGetGetRes()           {}
 func (*ErrorResponse) usersGetReviewGetRes()    {}
 func (*ErrorResponse) usersSetIsActivePostRes() {}
+func (*ErrorResponse) usersStatsGetRes()        {}
 
 type ErrorResponseError struct {
 	Code    ErrorResponseErrorCode `json:"code"`
@@ -160,6 +189,98 @@ func (s *HealthResponse) SetService(val string) {
 }
 
 func (*HealthResponse) healthGetRes() {}
+
+// NewOptBool returns new OptBool with value set to v.
+func NewOptBool(v bool) OptBool {
+	return OptBool{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptBool is optional bool.
+type OptBool struct {
+	Value bool
+	Set   bool
+}
+
+// IsSet returns true if OptBool was set.
+func (o OptBool) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptBool) Reset() {
+	var v bool
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptBool) SetTo(v bool) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptBool) Get() (v, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptInt returns new OptInt with value set to v.
+func NewOptInt(v int) OptInt {
+	return OptInt{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt is optional int.
+type OptInt struct {
+	Value int
+	Set   bool
+}
+
+// IsSet returns true if OptInt was set.
+func (o OptInt) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt) Reset() {
+	var v int
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt) SetTo(v int) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt) Get() (v int, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
 
 // NewOptNilDateTime returns new OptNilDateTime with value set to v.
 func NewOptNilDateTime(v time.Time) OptNilDateTime {
@@ -854,6 +975,44 @@ func (s *User) SetIsActive(val bool) {
 	s.IsActive = val
 }
 
+type UsersDeactivatePostConflict ErrorResponse
+
+func (*UsersDeactivatePostConflict) usersDeactivatePostRes() {}
+
+type UsersDeactivatePostNotFound ErrorResponse
+
+func (*UsersDeactivatePostNotFound) usersDeactivatePostRes() {}
+
+type UsersDeactivatePostOK struct {
+	Results []DeactivateResultItem `json:"results"`
+}
+
+// GetResults returns the value of Results.
+func (s *UsersDeactivatePostOK) GetResults() []DeactivateResultItem {
+	return s.Results
+}
+
+// SetResults sets the value of Results.
+func (s *UsersDeactivatePostOK) SetResults(val []DeactivateResultItem) {
+	s.Results = val
+}
+
+func (*UsersDeactivatePostOK) usersDeactivatePostRes() {}
+
+type UsersDeactivatePostReq struct {
+	UserIds []string `json:"user_ids"`
+}
+
+// GetUserIds returns the value of UserIds.
+func (s *UsersDeactivatePostReq) GetUserIds() []string {
+	return s.UserIds
+}
+
+// SetUserIds sets the value of UserIds.
+func (s *UsersDeactivatePostReq) SetUserIds(val []string) {
+	s.UserIds = val
+}
+
 type UsersGetReviewGetOK struct {
 	UserID       string             `json:"user_id"`
 	PullRequests []PullRequestShort `json:"pull_requests"`
@@ -920,4 +1079,45 @@ func (s *UsersSetIsActivePostReq) SetUserID(val string) {
 // SetIsActive sets the value of IsActive.
 func (s *UsersSetIsActivePostReq) SetIsActive(val bool) {
 	s.IsActive = val
+}
+
+type UsersStatsGetOK struct {
+	Users []UsersStatsGetOKUsersItem `json:"users"`
+}
+
+// GetUsers returns the value of Users.
+func (s *UsersStatsGetOK) GetUsers() []UsersStatsGetOKUsersItem {
+	return s.Users
+}
+
+// SetUsers sets the value of Users.
+func (s *UsersStatsGetOK) SetUsers(val []UsersStatsGetOKUsersItem) {
+	s.Users = val
+}
+
+func (*UsersStatsGetOK) usersStatsGetRes() {}
+
+type UsersStatsGetOKUsersItem struct {
+	UserID  string `json:"user_id"`
+	TotalPr int    `json:"total_pr"`
+}
+
+// GetUserID returns the value of UserID.
+func (s *UsersStatsGetOKUsersItem) GetUserID() string {
+	return s.UserID
+}
+
+// GetTotalPr returns the value of TotalPr.
+func (s *UsersStatsGetOKUsersItem) GetTotalPr() int {
+	return s.TotalPr
+}
+
+// SetUserID sets the value of UserID.
+func (s *UsersStatsGetOKUsersItem) SetUserID(val string) {
+	s.UserID = val
+}
+
+// SetTotalPr sets the value of TotalPr.
+func (s *UsersStatsGetOKUsersItem) SetTotalPr(val int) {
+	s.TotalPr = val
 }

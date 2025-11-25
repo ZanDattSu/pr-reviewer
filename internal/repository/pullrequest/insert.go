@@ -28,7 +28,7 @@ func (r *prRepository) InsertPR(ctx context.Context, pr model.PullRequest) (mode
 
 	defer func(tx pgx.Tx, ctx context.Context) {
 		if rbErr := tx.Rollback(ctx); rbErr != nil && !errors.Is(rbErr, pgx.ErrTxClosed) {
-			logger.Error(ctx, "tx rollback failed!", zap.Error(rbErr))
+			logger.Error(ctx, "tx rollback failed:", zap.Error(rbErr))
 		}
 	}(tx, ctx)
 

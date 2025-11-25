@@ -2,14 +2,15 @@ package pullrequest
 
 import (
 	"context"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest/mocks"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/reviewer"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/team"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/user"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+
+	"github.com/ZanDattSu/pr-reviewer/internal/repository/mocks"
+	"github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest"
+	"github.com/ZanDattSu/pr-reviewer/internal/repository/reviewer"
+	"github.com/ZanDattSu/pr-reviewer/internal/repository/team"
+	"github.com/ZanDattSu/pr-reviewer/internal/repository/user"
 )
 
 type SuiteService struct {
@@ -21,13 +22,19 @@ type SuiteService struct {
 	reviewerRepo reviewer.ReviewerRepository
 	teamRepo     team.TeamRepository
 	userRepo     user.UserRepository
+
+	service *prService
 }
 
 func (s *SuiteService) SetupTest() {
 	s.ctx = context.Background()
 
 	s.prRepo = mocks.NewPullRequestRepository(s.T())
-	s.reviewerRepo = mocks.New
+	s.reviewerRepo = mocks.NewReviewerRepository(s.T())
+	s.teamRepo = mocks.NewTeamRepository(s.T())
+	s.userRepo = mocks.NewUserRepository(s.T())
+
+	s.service = NewPrService(s.prRepo, s.reviewerRepo, s.teamRepo, s.userRepo)
 }
 
 func (s *SuiteService) TearDownTest() {

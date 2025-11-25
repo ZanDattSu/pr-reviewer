@@ -47,6 +47,15 @@ type Handler interface {
 	//
 	// GET /team/get
 	TeamGetGet(ctx context.Context, params TeamGetGetParams) (TeamGetGetRes, error)
+	// UsersDeactivatePost implements POST /users/deactivate operation.
+	//
+	// Деактивирует переданных пользователей (is_active = false) и
+	// для всех открытых PR, где они были назначены
+	// ревьюверами, пытается найти активную замену из их
+	// команды.
+	//
+	// POST /users/deactivate
+	UsersDeactivatePost(ctx context.Context, req *UsersDeactivatePostReq) (UsersDeactivatePostRes, error)
 	// UsersGetReviewGet implements GET /users/getReview operation.
 	//
 	// Получить PR'ы, где пользователь назначен ревьювером.
@@ -59,6 +68,17 @@ type Handler interface {
 	//
 	// POST /users/setIsActive
 	UsersSetIsActivePost(ctx context.Context, req *UsersSetIsActivePostReq) (UsersSetIsActivePostRes, error)
+	// UsersStatsGet implements GET /users/stats operation.
+	//
+	// Возвращает агрегированную статистику по
+	// пользователям: сколько PR создано каждым
+	// пользователем. Поддерживаются фильтры: - `top`: вернуть
+	// только топ-N пользователей - `only_active`: учитывать только
+	// активных пользователей - `only_open`: учитывать только PR в
+	// статусе OPEN.
+	//
+	// GET /users/stats
+	UsersStatsGet(ctx context.Context, params UsersStatsGetParams) (UsersStatsGetRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and
