@@ -38,8 +38,8 @@ func (s *SuiteService) TestCreatePullRequest() {
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u1").
 					Return([]string{"u2", "u3", "u4"}, nil).
 					Once()
 
@@ -85,8 +85,8 @@ func (s *SuiteService) TestCreatePullRequest() {
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u1").
 					Return([]string{"u2"}, nil).
 					Once()
 
@@ -130,8 +130,8 @@ func (s *SuiteService) TestCreatePullRequest() {
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u1").
 					Return([]string{}, nil).
 					Once()
 
@@ -240,8 +240,8 @@ func (s *SuiteService) TestCreatePullRequest() {
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u1").
 					Return(nil, dbErr).
 					Once()
 			},
@@ -264,8 +264,8 @@ func (s *SuiteService) TestCreatePullRequest() {
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u1").
 					Return([]string{"u2", "u3"}, nil).
 					Once()
 
@@ -293,8 +293,8 @@ func (s *SuiteService) TestCreatePullRequest() {
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u1").
 					Return([]string{"u2"}, nil).
 					Once()
 
@@ -336,8 +336,8 @@ func (s *SuiteService) TestCreatePullRequest() {
 					Return(true, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u1").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u1").
 					Return([]string{"u2"}, nil).
 					Once()
 
@@ -395,14 +395,16 @@ func (s *SuiteService) TestCreatePullRequest() {
 				tt.authorID,
 			)
 
-			//nolint:gocritic
-			if tt.expectedError != nil {
+			switch {
+			case tt.expectedError != nil:
 				s.Error(err)
 				s.Equal(tt.expectedError.Error(), err.Error())
-			} else if tt.expectedErrorType != nil {
+
+			case tt.expectedErrorType != nil:
 				s.Error(err)
 				s.IsType(tt.expectedErrorType, err)
-			} else {
+
+			default:
 				s.NoError(err)
 				s.Equal(tt.expectedPR.PullRequestID, actualPR.PullRequestID)
 				s.Equal(tt.expectedPR.PullRequestName, actualPR.PullRequestName)
@@ -413,7 +415,6 @@ func (s *SuiteService) TestCreatePullRequest() {
 
 			s.prRepo.AssertExpectations(s.T())
 			s.userRepo.AssertExpectations(s.T())
-			s.teamRepo.AssertExpectations(s.T())
 		})
 	}
 }

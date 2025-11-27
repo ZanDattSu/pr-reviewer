@@ -22,7 +22,7 @@ func (s *prService) ReassignPullRequest(ctx context.Context, pullRequestID, oldR
 		return model.PullRequest{}, "", apperror.NewNotAssignedError(oldReviewerID)
 	}
 
-	teamActiveMembers, err := s.teamRepo.GetTeamActiveMembersWithoutUser(ctx, oldReviewerID)
+	teamActiveMembers, err := s.userRepo.GetTeamActiveMembers(ctx, oldReviewerID)
 	if err != nil {
 		return model.PullRequest{}, "", err
 	}

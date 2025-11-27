@@ -7,5 +7,18 @@ import (
 )
 
 func (s *teamService) AddTeam(ctx context.Context, team model.Team) (model.Team, error) {
-	return s.teamRepo.AddTeam(ctx, team)
+	var result model.Team
+	err := s.tm.Do(ctx, func(ctx context.Context) error {
+		t, err := s.teamRepo.AddTeam(ctx, team)
+		if err != nil {
+			return err
+		}
+		result = t
+		return nil
+	})
+	if err != nil {
+		return model.Team{}, err
+	}
+
+	return result, nil
 }

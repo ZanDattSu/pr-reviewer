@@ -1,6 +1,8 @@
 package team
 
 import (
+	"github.com/avito-tech/go-transaction-manager/trm"
+
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/team"
 )
 
@@ -9,8 +11,12 @@ var _ TeamService = (*teamService)(nil)
 
 type teamService struct {
 	teamRepo team.TeamRepository
+	tm       trm.Manager
 }
 
-func NewTeamService(teamRepo team.TeamRepository) *teamService {
-	return &teamService{teamRepo: teamRepo}
+func NewTeamService(teamRepo team.TeamRepository, tm trm.Manager) *teamService {
+	return &teamService{
+		teamRepo: teamRepo,
+		tm:       tm,
+	}
 }

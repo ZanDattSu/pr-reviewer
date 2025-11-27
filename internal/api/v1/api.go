@@ -10,14 +10,20 @@ type Api interface {
 	HealthGet(ctx context.Context) (reviewerV1.HealthGetRes, error)
 
 	TeamAddPost(ctx context.Context, req *reviewerV1.Team) (reviewerV1.TeamAddPostRes, error)
+
 	TeamGetGet(ctx context.Context, params reviewerV1.TeamGetGetParams) (reviewerV1.TeamGetGetRes, error)
 
 	UsersStatsGet(ctx context.Context, params reviewerV1.UsersStatsGetParams) (reviewerV1.UsersStatsGetRes, error)
+
 	UsersSetIsActivePost(ctx context.Context, req *reviewerV1.UsersSetIsActivePostReq) (reviewerV1.UsersSetIsActivePostRes, error)
+
 	UsersGetReviewGet(ctx context.Context, params reviewerV1.UsersGetReviewGetParams) (reviewerV1.UsersGetReviewGetRes, error)
+
 	UsersDeactivatePost(ctx context.Context, req *reviewerV1.UsersDeactivatePostReq) (reviewerV1.UsersDeactivatePostRes, error)
 
 	PullRequestCreatePost(ctx context.Context, req *reviewerV1.PullRequestCreatePostReq) (reviewerV1.PullRequestCreatePostRes, error)
+
 	PullRequestMergePost(ctx context.Context, req *reviewerV1.PullRequestMergePostReq) (reviewerV1.PullRequestMergePostRes, error)
+
 	PullRequestReassignPost(ctx context.Context, req *reviewerV1.PullRequestReassignPostReq) (reviewerV1.PullRequestReassignPostRes, error)
 }

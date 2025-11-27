@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/avito-tech/go-transaction-manager/pgxv5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
@@ -20,18 +21,7 @@ const PgSqlUniqueViolationErr = "23505"
 func (r *teamRepository) AddTeam(ctx context.Context, team model.Team) (model.Team, error) {
 	repoTeam := converter.ServiceTeamToRepo(team)
 
-	tx, err := r.pool.BeginTx(ctx, pgx.TxOptions{
-		IsoLevel: pgx.ReadCommitted,
-	})
-	if err != nil {
-		return model.Team{}, err
-	}
-
-	defer func(tx pgx.Tx, ctx context.Context) {
-		if rbErr := tx.Rollback(ctx); rbErr != nil && !errors.Is(rbErr, pgx.ErrTxClosed) {
-			logger.Warn(ctx, "rollback failed", zap.Error(rbErr))
-		}
-	}(tx, ctx)
+	tx := r.getter.DefaultTrOrDB(ctx, r.pool)
 
 	teamID, err := r.insertTeam(ctx, tx, repoTeam.TeamName)
 	if err != nil {
@@ -43,14 +33,10 @@ func (r *teamRepository) AddTeam(ctx context.Context, team model.Team) (model.Te
 		return model.Team{}, err
 	}
 
-	if err := tx.Commit(ctx); err != nil {
-		return model.Team{}, err
-	}
-
 	return converter.RepoTeamToService(repoTeam), nil
 }
 
-func (r *teamRepository) insertTeam(ctx context.Context, tx pgx.Tx, teamName string) (string, error) {
+func (r *teamRepository) insertTeam(ctx context.Context, conn pgxv5.Tr, teamName string) (string, error) {
 	const q = `
         INSERT INTO teams (team_name)
         VALUES ($1)
@@ -59,7 +45,7 @@ func (r *teamRepository) insertTeam(ctx context.Context, tx pgx.Tx, teamName str
 
 	var teamID string
 
-	err := tx.QueryRow(ctx, q, teamName).Scan(&teamID)
+	err := conn.QueryRow(ctx, q, teamName).Scan(&teamID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == PgSqlUniqueViolationErr {
@@ -73,7 +59,7 @@ func (r *teamRepository) insertTeam(ctx context.Context, tx pgx.Tx, teamName str
 
 func (r *teamRepository) upsertTeamMembers(
 	ctx context.Context,
-	tx pgx.Tx,
+	conn pgxv5.Tr,
 	teamID string,
 	members []repoModel.TeamMember,
 ) error {
@@ -94,7 +80,7 @@ func (r *teamRepository) upsertTeamMembers(
 		batch.Queue(q, m.UserID, m.Username, teamID, m.IsActive)
 	}
 
-	batchRes := tx.SendBatch(ctx, batch)
+	batchRes := conn.SendBatch(ctx, batch)
 
 	defer func(batchRes pgx.BatchResults) {
 		if brCerr := batchRes.Close(); brCerr != nil {

@@ -1,6 +1,6 @@
 package model
 
-type DeactivateResult struct {
-	PullRequestID string
+type ReassignedPR struct {
+	PullRequestID PullRequest
 	ReplacedBy    string
 }

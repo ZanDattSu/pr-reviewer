@@ -79,24 +79,24 @@ func (_c *UserRepository_CheckUserExists_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
-// DeactivateUsersAndReassign provides a mock function with given fields: ctx, userIDs
-func (_m *UserRepository) DeactivateUsersAndReassign(ctx context.Context, userIDs []string) (map[string]string, error) {
+// DeactivateUsers provides a mock function with given fields: ctx, userIDs
+func (_m *UserRepository) DeactivateUsers(ctx context.Context, userIDs []string) ([]string, error) {
 	ret := _m.Called(ctx, userIDs)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeactivateUsersAndReassign")
+		panic("no return value specified for DeactivateUsers")
 	}
 
-	var r0 map[string]string
+	var r0 []string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string) (map[string]string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]string, error)); ok {
 		return rf(ctx, userIDs)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string) map[string]string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) []string); ok {
 		r0 = rf(ctx, userIDs)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string]string)
+			r0 = ret.Get(0).([]string)
 		}
 	}
 
@@ -109,31 +109,149 @@ func (_m *UserRepository) DeactivateUsersAndReassign(ctx context.Context, userID
 	return r0, r1
 }
 
-// UserRepository_DeactivateUsersAndReassign_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeactivateUsersAndReassign'
-type UserRepository_DeactivateUsersAndReassign_Call struct {
+// UserRepository_DeactivateUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeactivateUsers'
+type UserRepository_DeactivateUsers_Call struct {
 	*mock.Call
 }
 
-// DeactivateUsersAndReassign is a helper method to define mock.On call
+// DeactivateUsers is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userIDs []string
-func (_e *UserRepository_Expecter) DeactivateUsersAndReassign(ctx interface{}, userIDs interface{}) *UserRepository_DeactivateUsersAndReassign_Call {
-	return &UserRepository_DeactivateUsersAndReassign_Call{Call: _e.mock.On("DeactivateUsersAndReassign", ctx, userIDs)}
+func (_e *UserRepository_Expecter) DeactivateUsers(ctx interface{}, userIDs interface{}) *UserRepository_DeactivateUsers_Call {
+	return &UserRepository_DeactivateUsers_Call{Call: _e.mock.On("DeactivateUsers", ctx, userIDs)}
 }
 
-func (_c *UserRepository_DeactivateUsersAndReassign_Call) Run(run func(ctx context.Context, userIDs []string)) *UserRepository_DeactivateUsersAndReassign_Call {
+func (_c *UserRepository_DeactivateUsers_Call) Run(run func(ctx context.Context, userIDs []string)) *UserRepository_DeactivateUsers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].([]string))
 	})
 	return _c
 }
 
-func (_c *UserRepository_DeactivateUsersAndReassign_Call) Return(_a0 map[string]string, _a1 error) *UserRepository_DeactivateUsersAndReassign_Call {
+func (_c *UserRepository_DeactivateUsers_Call) Return(_a0 []string, _a1 error) *UserRepository_DeactivateUsers_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserRepository_DeactivateUsersAndReassign_Call) RunAndReturn(run func(context.Context, []string) (map[string]string, error)) *UserRepository_DeactivateUsersAndReassign_Call {
+func (_c *UserRepository_DeactivateUsers_Call) RunAndReturn(run func(context.Context, []string) ([]string, error)) *UserRepository_DeactivateUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetPRReviewer provides a mock function with given fields: ctx, userID
+func (_m *UserRepository) GetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPRReviewer")
+	}
+
+	var r0 []model.UserAssignedPR
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]model.UserAssignedPR, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) []model.UserAssignedPR); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.UserAssignedPR)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserRepository_GetPRReviewer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPRReviewer'
+type UserRepository_GetPRReviewer_Call struct {
+	*mock.Call
+}
+
+// GetPRReviewer is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID string
+func (_e *UserRepository_Expecter) GetPRReviewer(ctx interface{}, userID interface{}) *UserRepository_GetPRReviewer_Call {
+	return &UserRepository_GetPRReviewer_Call{Call: _e.mock.On("GetPRReviewer", ctx, userID)}
+}
+
+func (_c *UserRepository_GetPRReviewer_Call) Run(run func(ctx context.Context, userID string)) *UserRepository_GetPRReviewer_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *UserRepository_GetPRReviewer_Call) Return(_a0 []model.UserAssignedPR, _a1 error) *UserRepository_GetPRReviewer_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserRepository_GetPRReviewer_Call) RunAndReturn(run func(context.Context, string) ([]model.UserAssignedPR, error)) *UserRepository_GetPRReviewer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTeamActiveMembers provides a mock function with given fields: ctx, userID
+func (_m *UserRepository) GetTeamActiveMembers(ctx context.Context, userID string) ([]string, error) {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTeamActiveMembers")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) ([]string, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) []string); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserRepository_GetTeamActiveMembers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTeamActiveMembers'
+type UserRepository_GetTeamActiveMembers_Call struct {
+	*mock.Call
+}
+
+// GetTeamActiveMembers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID string
+func (_e *UserRepository_Expecter) GetTeamActiveMembers(ctx interface{}, userID interface{}) *UserRepository_GetTeamActiveMembers_Call {
+	return &UserRepository_GetTeamActiveMembers_Call{Call: _e.mock.On("GetTeamActiveMembers", ctx, userID)}
+}
+
+func (_c *UserRepository_GetTeamActiveMembers_Call) Run(run func(ctx context.Context, userID string)) *UserRepository_GetTeamActiveMembers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *UserRepository_GetTeamActiveMembers_Call) Return(_a0 []string, _a1 error) *UserRepository_GetTeamActiveMembers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserRepository_GetTeamActiveMembers_Call) RunAndReturn(run func(context.Context, string) ([]string, error)) *UserRepository_GetTeamActiveMembers_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -253,65 +371,6 @@ func (_c *UserRepository_UpdateUserStatus_Call) Return(_a0 model.User, _a1 error
 }
 
 func (_c *UserRepository_UpdateUserStatus_Call) RunAndReturn(run func(context.Context, string, bool) (model.User, error)) *UserRepository_UpdateUserStatus_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UserGetPRReviewer provides a mock function with given fields: ctx, userID
-func (_m *UserRepository) UserGetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
-	ret := _m.Called(ctx, userID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UserGetPRReviewer")
-	}
-
-	var r0 []model.UserAssignedPR
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]model.UserAssignedPR, error)); ok {
-		return rf(ctx, userID)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []model.UserAssignedPR); ok {
-		r0 = rf(ctx, userID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.UserAssignedPR)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, userID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UserRepository_UserGetPRReviewer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UserGetPRReviewer'
-type UserRepository_UserGetPRReviewer_Call struct {
-	*mock.Call
-}
-
-// UserGetPRReviewer is a helper method to define mock.On call
-//   - ctx context.Context
-//   - userID string
-func (_e *UserRepository_Expecter) UserGetPRReviewer(ctx interface{}, userID interface{}) *UserRepository_UserGetPRReviewer_Call {
-	return &UserRepository_UserGetPRReviewer_Call{Call: _e.mock.On("UserGetPRReviewer", ctx, userID)}
-}
-
-func (_c *UserRepository_UserGetPRReviewer_Call) Run(run func(ctx context.Context, userID string)) *UserRepository_UserGetPRReviewer_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *UserRepository_UserGetPRReviewer_Call) Return(_a0 []model.UserAssignedPR, _a1 error) *UserRepository_UserGetPRReviewer_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *UserRepository_UserGetPRReviewer_Call) RunAndReturn(run func(context.Context, string) ([]model.UserAssignedPR, error)) *UserRepository_UserGetPRReviewer_Call {
 	_c.Call.Return(run)
 	return _c
 }

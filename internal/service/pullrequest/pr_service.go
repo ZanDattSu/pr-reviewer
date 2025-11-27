@@ -1,9 +1,10 @@
 package pullrequest
 
 import (
+	"github.com/avito-tech/go-transaction-manager/trm"
+
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest"
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/reviewer"
-	"github.com/ZanDattSu/pr-reviewer/internal/repository/team"
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/user"
 )
 
@@ -13,20 +14,20 @@ var _ PRService = (*prService)(nil)
 type prService struct {
 	prRepo       pullrequest.PullRequestRepository
 	reviewerRepo reviewer.ReviewerRepository
-	teamRepo     team.TeamRepository
 	userRepo     user.UserRepository
+	tm           trm.Manager
 }
 
 func NewPrService(
 	prRepo pullrequest.PullRequestRepository,
 	reviewerRepo reviewer.ReviewerRepository,
-	teamRepo team.TeamRepository,
 	userRepo user.UserRepository,
+	tm trm.Manager,
 ) *prService {
 	return &prService{
 		prRepo:       prRepo,
 		reviewerRepo: reviewerRepo,
-		teamRepo:     teamRepo,
 		userRepo:     userRepo,
+		tm:           tm,
 	}
 }

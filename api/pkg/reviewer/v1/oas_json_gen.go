@@ -24,8 +24,8 @@ func (s *DeactivateResultItem) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *DeactivateResultItem) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("pull_request_id")
-		e.Str(s.PullRequestID)
+		e.FieldStart("pull_request")
+		s.PullRequest.Encode(e)
 	}
 	{
 		e.FieldStart("replaced_by")
@@ -34,7 +34,7 @@ func (s *DeactivateResultItem) encodeFields(e *jx.Encoder) {
 }
 
 var jsonFieldsNameOfDeactivateResultItem = [2]string{
-	0: "pull_request_id",
+	0: "pull_request",
 	1: "replaced_by",
 }
 
@@ -47,17 +47,15 @@ func (s *DeactivateResultItem) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "pull_request_id":
+		case "pull_request":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.PullRequestID = string(v)
-				if err != nil {
+				if err := s.PullRequest.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"pull_request_id\"")
+				return errors.Wrap(err, "decode field \"pull_request\"")
 			}
 		case "replaced_by":
 			requiredBitSet[0] |= 1 << 1
@@ -123,6 +121,254 @@ func (s *DeactivateResultItem) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *DeactivateResultItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *DeactivateResultItemPullRequest) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *DeactivateResultItemPullRequest) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("pull_request_id")
+		e.Str(s.PullRequestID)
+	}
+	{
+		e.FieldStart("pull_request_name")
+		e.Str(s.PullRequestName)
+	}
+	{
+		e.FieldStart("author_id")
+		e.Str(s.AuthorID)
+	}
+	{
+		e.FieldStart("status")
+		s.Status.Encode(e)
+	}
+	{
+		e.FieldStart("assigned_reviewers")
+		e.ArrStart()
+		for _, elem := range s.AssignedReviewers {
+			e.Str(elem)
+		}
+		e.ArrEnd()
+	}
+	{
+		if s.CreatedAt.Set {
+			e.FieldStart("createdAt")
+			s.CreatedAt.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.MergedAt.Set {
+			e.FieldStart("mergedAt")
+			s.MergedAt.Encode(e, json.EncodeDateTime)
+		}
+	}
+}
+
+var jsonFieldsNameOfDeactivateResultItemPullRequest = [7]string{
+	0: "pull_request_id",
+	1: "pull_request_name",
+	2: "author_id",
+	3: "status",
+	4: "assigned_reviewers",
+	5: "createdAt",
+	6: "mergedAt",
+}
+
+// Decode decodes DeactivateResultItemPullRequest from json.
+func (s *DeactivateResultItemPullRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeactivateResultItemPullRequest to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "pull_request_id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.PullRequestID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pull_request_id\"")
+			}
+		case "pull_request_name":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.PullRequestName = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pull_request_name\"")
+			}
+		case "author_id":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.AuthorID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"author_id\"")
+			}
+		case "status":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				if err := s.Status.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status\"")
+			}
+		case "assigned_reviewers":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				s.AssignedReviewers = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.AssignedReviewers = append(s.AssignedReviewers, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"assigned_reviewers\"")
+			}
+		case "createdAt":
+			if err := func() error {
+				s.CreatedAt.Reset()
+				if err := s.CreatedAt.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"createdAt\"")
+			}
+		case "mergedAt":
+			if err := func() error {
+				s.MergedAt.Reset()
+				if err := s.MergedAt.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"mergedAt\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode DeactivateResultItemPullRequest")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00011111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfDeactivateResultItemPullRequest) {
+					name = jsonFieldsNameOfDeactivateResultItemPullRequest[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DeactivateResultItemPullRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeactivateResultItemPullRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DeactivateResultItemPullRequestStatus as json.
+func (s DeactivateResultItemPullRequestStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes DeactivateResultItemPullRequestStatus from json.
+func (s *DeactivateResultItemPullRequestStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DeactivateResultItemPullRequestStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch DeactivateResultItemPullRequestStatus(v) {
+	case DeactivateResultItemPullRequestStatusOPEN:
+		*s = DeactivateResultItemPullRequestStatusOPEN
+	case DeactivateResultItemPullRequestStatusMERGED:
+		*s = DeactivateResultItemPullRequestStatusMERGED
+	default:
+		*s = DeactivateResultItemPullRequestStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s DeactivateResultItemPullRequestStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DeactivateResultItemPullRequestStatus) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

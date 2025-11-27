@@ -8,7 +8,7 @@ import (
 	repoModel "github.com/ZanDattSu/pr-reviewer/internal/repository/model"
 )
 
-func (r *userRepository) UserGetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
+func (r *userRepository) GetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) {
 	const q = `
         SELECT pr.pull_request_id,
                pr.pull_request_name,

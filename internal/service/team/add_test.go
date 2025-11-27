@@ -1,6 +1,7 @@
 package team
 
 import (
+	"context"
 	"errors"
 
 	"github.com/stretchr/testify/mock"
@@ -8,6 +9,14 @@ import (
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
 	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 )
+
+func (s *SuiteService) mockTM() {
+	s.trm.
+		On("Do", mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		Return(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		})
+}
 
 func (s *SuiteService) TestAddTeam() {
 	tests := []struct {
@@ -28,6 +37,8 @@ func (s *SuiteService) TestAddTeam() {
 				},
 			},
 			setupMocks: func() {
+				s.mockTM()
+
 				s.teamRepo.
 					On("AddTeam", s.ctx, mock.MatchedBy(func(t model.Team) bool {
 						return t.TeamName == "backend" &&
@@ -59,6 +70,8 @@ func (s *SuiteService) TestAddTeam() {
 				Members:  []model.TeamMember{},
 			},
 			setupMocks: func() {
+				s.mockTM()
+
 				s.teamRepo.
 					On("AddTeam", s.ctx, mock.Anything).
 					Return(model.Team{TeamName: "empty", Members: []model.TeamMember{}}, nil).
@@ -74,6 +87,8 @@ func (s *SuiteService) TestAddTeam() {
 				Members:  []model.TeamMember{},
 			},
 			setupMocks: func() {
+				s.mockTM()
+
 				s.teamRepo.
 					On("AddTeam", s.ctx, mock.Anything).
 					Return(model.Team{}, apperror.NewTeamExistsError("backend")).
@@ -91,6 +106,8 @@ func (s *SuiteService) TestAddTeam() {
 				},
 			},
 			setupMocks: func() {
+				s.mockTM()
+
 				s.teamRepo.
 					On("AddTeam", s.ctx, mock.Anything).
 					Return(model.Team{}, apperror.NewUserInAnotherTeamError("u777")).
@@ -106,6 +123,8 @@ func (s *SuiteService) TestAddTeam() {
 				Members:  []model.TeamMember{},
 			},
 			setupMocks: func() {
+				s.mockTM()
+
 				s.teamRepo.
 					On("AddTeam", s.ctx, mock.Anything).
 					Return(model.Team{}, errors.New("db timeout")).
@@ -121,19 +140,22 @@ func (s *SuiteService) TestAddTeam() {
 
 			actualTeam, err := s.service.AddTeam(s.ctx, tt.inputTeam)
 
-			//nolint:gocritic
-			if tt.expectedErr != nil {
+			switch {
+			case tt.expectedErr != nil:
 				s.Error(err)
-				s.Assert().Equal(tt.expectedErr.Error(), err.Error())
-			} else if tt.expectedErrTyp != nil {
+				s.Equal(tt.expectedErr.Error(), err.Error())
+
+			case tt.expectedErrTyp != nil:
 				s.Error(err)
 				s.IsType(tt.expectedErrTyp, err)
-			} else {
+
+			default:
 				s.NoError(err)
 				s.Equal(tt.expectedTeam, actualTeam)
 			}
 
 			s.teamRepo.AssertExpectations(s.T())
+			s.trm.AssertExpectations(s.T())
 		})
 	}
 }

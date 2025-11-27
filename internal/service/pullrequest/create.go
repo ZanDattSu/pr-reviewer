@@ -31,7 +31,7 @@ func (s *prService) CreatePullRequest(
 		return model.PullRequest{}, apperror.NewUserNotFoundError(authorID)
 	}
 
-	teamActiveMembers, err := s.teamRepo.GetTeamActiveMembersWithoutUser(ctx, authorID)
+	teamActiveMembers, err := s.userRepo.GetTeamActiveMembers(ctx, authorID)
 	if err != nil {
 		return model.PullRequest{}, err
 	}

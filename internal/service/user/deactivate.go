@@ -2,27 +2,50 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
 )
 
-func (s *userService) DeactivateUsers(ctx context.Context, userIDs []string) ([]model.DeactivateResult, error) {
-	if len(userIDs) == 0 {
-		return []model.DeactivateResult{}, nil
-	}
+func (s *userService) DeactivateUsersAndReassignPR(ctx context.Context, userIDs []string) ([]model.ReassignedPR, error) {
+	reassignedPRs := make([]model.ReassignedPR, 0)
 
-	mapping, err := s.userRepo.DeactivateUsersAndReassign(ctx, userIDs)
+	err := s.tm.Do(ctx, func(ctx context.Context) error {
+		deactivated, err := s.userRepo.DeactivateUsers(ctx, userIDs)
+		if err != nil {
+			return fmt.Errorf("failed to deactivate users: %w", err)
+		}
+
+		if len(deactivated) == 0 {
+			return fmt.Errorf("no users were deactivated")
+		}
+
+		openPRs, err := s.prRepo.FindOpenPRsWithReviewers(ctx, deactivated)
+		if err != nil {
+			return fmt.Errorf("failed to find open PRs: %w", err)
+		}
+
+		if len(openPRs) == 0 {
+			return nil
+		}
+
+		for _, openPR := range openPRs {
+			pr, newReviewerID, err := s.prService.ReassignPullRequest(ctx, openPR.PRID, openPR.OldReviewer)
+			if err != nil {
+				return fmt.Errorf("failed to reassign PR %s: %w", openPR.PRID, err)
+			}
+
+			reassignedPRs = append(reassignedPRs, model.ReassignedPR{
+				PullRequestID: pr,
+				ReplacedBy:    newReviewerID,
+			})
+		}
+
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	results := make([]model.DeactivateResult, 0, len(mapping))
-	for prID, newReviewer := range mapping {
-		results = append(results, model.DeactivateResult{
-			PullRequestID: prID,
-			ReplacedBy:    newReviewer,
-		})
-	}
-
-	return results, nil
+	return reassignedPRs, nil
 }

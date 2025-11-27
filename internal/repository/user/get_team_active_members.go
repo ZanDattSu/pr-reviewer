@@ -1,10 +1,14 @@
-package team
+package user
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+
+	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 )
 
-func (r *teamRepository) GetTeamActiveMembersWithoutUser(ctx context.Context, userID string) ([]string, error) {
+func (r *userRepository) GetTeamActiveMembers(ctx context.Context, userID string) ([]string, error) {
 	const q = `
         SELECT user_id
         FROM users
@@ -18,6 +22,9 @@ func (r *teamRepository) GetTeamActiveMembersWithoutUser(ctx context.Context, us
 	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
 	rows, err := conn.Query(ctx, q, userID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, apperror.NewUserNotFoundError(userID)
+		}
 		return nil, err
 	}
 	defer rows.Close()

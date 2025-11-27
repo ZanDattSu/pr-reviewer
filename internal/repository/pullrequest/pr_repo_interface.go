@@ -11,4 +11,5 @@ type PullRequestRepository interface {
 	CheckPRExists(ctx context.Context, prID string) (bool, error)
 	InsertPR(ctx context.Context, pr model.PullRequest) (model.PullRequest, error)
 	UpdatePRStatus(ctx context.Context, pr model.PullRequest, status model.Status) (model.PullRequest, error)
+	FindOpenPRsWithReviewers(ctx context.Context, reviewerIDs []string) ([]model.OpenPR, error)
 }

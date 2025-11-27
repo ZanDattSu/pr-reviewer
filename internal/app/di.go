@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/avito-tech/go-transaction-manager/pgxv5"
+	"github.com/avito-tech/go-transaction-manager/trm"
+	"github.com/avito-tech/go-transaction-manager/trm/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	reviewerApi "github.com/ZanDattSu/pr-reviewer/internal/api/v1"
@@ -38,6 +41,8 @@ type diContainer struct {
 	reviewerRepository reviewer.ReviewerRepository
 	teamRepository     teamRepo.TeamRepository
 	userRepository     userRepo.UserRepository
+
+	txManager trm.Manager
 
 	postgreSQLPool *pgxpool.Pool
 }
@@ -95,8 +100,8 @@ func (di *diContainer) PRService(ctx context.Context) prService.PRService {
 		di.prService = prService.NewPrService(
 			di.PRRepository(ctx),
 			di.ReviewerRepository(ctx),
-			di.TeamRepository(ctx),
 			di.UserRepository(ctx),
+			di.TxManager(ctx),
 		)
 	}
 	return di.prService
@@ -104,14 +109,22 @@ func (di *diContainer) PRService(ctx context.Context) prService.PRService {
 
 func (di *diContainer) TeamService(ctx context.Context) teamService.TeamService {
 	if di.teamService == nil {
-		di.teamService = teamService.NewTeamService(di.TeamRepository(ctx))
+		di.teamService = teamService.NewTeamService(
+			di.TeamRepository(ctx),
+			di.TxManager(ctx),
+		)
 	}
 	return di.teamService
 }
 
 func (di *diContainer) UserService(ctx context.Context) userService.UserService {
 	if di.userService == nil {
-		di.userService = userService.NewUserService(di.UserRepository(ctx))
+		di.userService = userService.NewUserService(
+			di.PRService(ctx),
+			di.UserRepository(ctx),
+			di.PRRepository(ctx),
+			di.TxManager(ctx),
+		)
 	}
 	return di.userService
 }
@@ -144,6 +157,14 @@ func (di *diContainer) UserRepository(ctx context.Context) userRepo.UserReposito
 		di.userRepository = userRepo.NewUserRepository(di.PostgreSQLPool(ctx))
 	}
 	return di.userRepository
+}
+
+func (di *diContainer) TxManager(ctx context.Context) trm.Manager {
+	if di.txManager == nil {
+		factory := pgxv5.NewDefaultFactory(di.PostgreSQLPool(ctx))
+		di.txManager = manager.Must(factory)
+	}
+	return di.txManager
 }
 
 func (di *diContainer) PostgreSQLPool(ctx context.Context) *pgxpool.Pool {

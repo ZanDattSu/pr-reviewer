@@ -3,6 +3,7 @@ module github.com/ZanDattSu/pr-reviewer
 go 1.24.0
 
 require (
+	github.com/avito-tech/go-transaction-manager v1.5.1
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-faster/errors v0.7.1

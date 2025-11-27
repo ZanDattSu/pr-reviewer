@@ -7,7 +7,7 @@ import (
 	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 )
 
-func (s *SuiteService) TestUserGetPRReviewer() {
+func (s *SuiteService) TestGetPRReviewer() {
 	tests := []struct {
 		name           string
 		userID         string
@@ -26,7 +26,7 @@ func (s *SuiteService) TestUserGetPRReviewer() {
 					Once()
 
 				s.userRepo.
-					On("UserGetPRReviewer", s.ctx, "u2").
+					On("GetPRReviewer", s.ctx, "u2").
 					Return([]model.UserAssignedPR{
 						{
 							PullRequestID:   "pr-1001",
@@ -57,7 +57,7 @@ func (s *SuiteService) TestUserGetPRReviewer() {
 					Once()
 
 				s.userRepo.
-					On("UserGetPRReviewer", s.ctx, "u5").
+					On("GetPRReviewer", s.ctx, "u5").
 					Return([]model.UserAssignedPR{}, nil).
 					Once()
 			},
@@ -89,7 +89,7 @@ func (s *SuiteService) TestUserGetPRReviewer() {
 		},
 
 		{
-			name:   "ошибка — DB error во время UserGetPRReviewer",
+			name:   "ошибка — DB error во время GetPRReviewer",
 			userID: "u2",
 			setupMocks: func() {
 				s.userRepo.
@@ -98,7 +98,7 @@ func (s *SuiteService) TestUserGetPRReviewer() {
 					Once()
 
 				s.userRepo.
-					On("UserGetPRReviewer", s.ctx, "u2").
+					On("GetPRReviewer", s.ctx, "u2").
 					Return(nil, errors.New("timeout")).
 					Once()
 			},

@@ -33,15 +33,23 @@ func (r *prRepository) InsertPR(ctx context.Context, pr model.PullRequest) (mode
 	}(tx, ctx)
 
 	const insertPR = `
+
         INSERT INTO pull_requests (pull_request_id, pull_request_name, author_id, status_id)
+
         VALUES ($1, $2, $3, $4)
+
         RETURNING created_at;
+
     `
 
 	err = tx.QueryRow(ctx, insertPR,
+
 		repoPR.PullRequestID,
+
 		repoPR.PullRequestName,
+
 		repoPR.AuthorID,
+
 		repoPR.Status,
 	).Scan(&createdAt)
 	if err != nil {
@@ -49,10 +57,12 @@ func (r *prRepository) InsertPR(ctx context.Context, pr model.PullRequest) (mode
 	}
 
 	if len(pr.AssignedReviewers) != 0 {
+
 		err := updatePRReviewers(ctx, tx, pr)
 		if err != nil {
 			return model.PullRequest{}, err
 		}
+
 	}
 
 	if err := tx.Commit(ctx); err != nil {
@@ -66,15 +76,20 @@ func (r *prRepository) InsertPR(ctx context.Context, pr model.PullRequest) (mode
 
 func updatePRReviewers(ctx context.Context, tx pgx.Tx, pr model.PullRequest) error {
 	const insertPRReviewers = `
+
 		INSERT INTO pull_request_reviewers (pull_request_id, reviewer_id)
+
 		VALUES ($1, $2)
+
 		`
 
 	for _, reviewer := range pr.AssignedReviewers {
+
 		_, err := tx.Exec(ctx, insertPRReviewers, pr.PullRequestID, reviewer)
 		if err != nil {
 			return err
 		}
+
 	}
 
 	return nil

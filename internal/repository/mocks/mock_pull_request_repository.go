@@ -79,6 +79,65 @@ func (_c *PullRequestRepository_CheckPRExists_Call) RunAndReturn(run func(contex
 	return _c
 }
 
+// FindOpenPRsWithReviewers provides a mock function with given fields: ctx, reviewerIDs
+func (_m *PullRequestRepository) FindOpenPRsWithReviewers(ctx context.Context, reviewerIDs []string) ([]model.OpenPR, error) {
+	ret := _m.Called(ctx, reviewerIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindOpenPRsWithReviewers")
+	}
+
+	var r0 []model.OpenPR
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]model.OpenPR, error)); ok {
+		return rf(ctx, reviewerIDs)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []string) []model.OpenPR); ok {
+		r0 = rf(ctx, reviewerIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.OpenPR)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []string) error); ok {
+		r1 = rf(ctx, reviewerIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// PullRequestRepository_FindOpenPRsWithReviewers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FindOpenPRsWithReviewers'
+type PullRequestRepository_FindOpenPRsWithReviewers_Call struct {
+	*mock.Call
+}
+
+// FindOpenPRsWithReviewers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - reviewerIDs []string
+func (_e *PullRequestRepository_Expecter) FindOpenPRsWithReviewers(ctx interface{}, reviewerIDs interface{}) *PullRequestRepository_FindOpenPRsWithReviewers_Call {
+	return &PullRequestRepository_FindOpenPRsWithReviewers_Call{Call: _e.mock.On("FindOpenPRsWithReviewers", ctx, reviewerIDs)}
+}
+
+func (_c *PullRequestRepository_FindOpenPRsWithReviewers_Call) Run(run func(ctx context.Context, reviewerIDs []string)) *PullRequestRepository_FindOpenPRsWithReviewers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]string))
+	})
+	return _c
+}
+
+func (_c *PullRequestRepository_FindOpenPRsWithReviewers_Call) Return(_a0 []model.OpenPR, _a1 error) *PullRequestRepository_FindOpenPRsWithReviewers_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *PullRequestRepository_FindOpenPRsWithReviewers_Call) RunAndReturn(run func(context.Context, []string) ([]model.OpenPR, error)) *PullRequestRepository_FindOpenPRsWithReviewers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPRWithReviewers provides a mock function with given fields: ctx, prID
 func (_m *PullRequestRepository) GetPRWithReviewers(ctx context.Context, prID string) (model.PullRequest, error) {
 	ret := _m.Called(ctx, prID)

@@ -22,24 +22,24 @@ func (_m *UserService) EXPECT() *UserService_Expecter {
 	return &UserService_Expecter{mock: &_m.Mock}
 }
 
-// DeactivateUsers provides a mock function with given fields: ctx, userIDs
-func (_m *UserService) DeactivateUsers(ctx context.Context, userIDs []string) ([]model.DeactivateResult, error) {
+// DeactivateUsersAndReassignPR provides a mock function with given fields: ctx, userIDs
+func (_m *UserService) DeactivateUsersAndReassignPR(ctx context.Context, userIDs []string) ([]model.ReassignedPR, error) {
 	ret := _m.Called(ctx, userIDs)
 
 	if len(ret) == 0 {
-		panic("no return value specified for DeactivateUsers")
+		panic("no return value specified for DeactivateUsersAndReassignPR")
 	}
 
-	var r0 []model.DeactivateResult
+	var r0 []model.ReassignedPR
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]model.DeactivateResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) ([]model.ReassignedPR, error)); ok {
 		return rf(ctx, userIDs)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, []string) []model.DeactivateResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, []string) []model.ReassignedPR); ok {
 		r0 = rf(ctx, userIDs)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.DeactivateResult)
+			r0 = ret.Get(0).([]model.ReassignedPR)
 		}
 	}
 
@@ -52,31 +52,31 @@ func (_m *UserService) DeactivateUsers(ctx context.Context, userIDs []string) ([
 	return r0, r1
 }
 
-// UserService_DeactivateUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeactivateUsers'
-type UserService_DeactivateUsers_Call struct {
+// UserService_DeactivateUsersAndReassignPR_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeactivateUsersAndReassignPR'
+type UserService_DeactivateUsersAndReassignPR_Call struct {
 	*mock.Call
 }
 
-// DeactivateUsers is a helper method to define mock.On call
+// DeactivateUsersAndReassignPR is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userIDs []string
-func (_e *UserService_Expecter) DeactivateUsers(ctx interface{}, userIDs interface{}) *UserService_DeactivateUsers_Call {
-	return &UserService_DeactivateUsers_Call{Call: _e.mock.On("DeactivateUsers", ctx, userIDs)}
+func (_e *UserService_Expecter) DeactivateUsersAndReassignPR(ctx interface{}, userIDs interface{}) *UserService_DeactivateUsersAndReassignPR_Call {
+	return &UserService_DeactivateUsersAndReassignPR_Call{Call: _e.mock.On("DeactivateUsersAndReassignPR", ctx, userIDs)}
 }
 
-func (_c *UserService_DeactivateUsers_Call) Run(run func(ctx context.Context, userIDs []string)) *UserService_DeactivateUsers_Call {
+func (_c *UserService_DeactivateUsersAndReassignPR_Call) Run(run func(ctx context.Context, userIDs []string)) *UserService_DeactivateUsersAndReassignPR_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].([]string))
 	})
 	return _c
 }
 
-func (_c *UserService_DeactivateUsers_Call) Return(_a0 []model.DeactivateResult, _a1 error) *UserService_DeactivateUsers_Call {
+func (_c *UserService_DeactivateUsersAndReassignPR_Call) Return(_a0 []model.ReassignedPR, _a1 error) *UserService_DeactivateUsersAndReassignPR_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserService_DeactivateUsers_Call) RunAndReturn(run func(context.Context, []string) ([]model.DeactivateResult, error)) *UserService_DeactivateUsers_Call {
+func (_c *UserService_DeactivateUsersAndReassignPR_Call) RunAndReturn(run func(context.Context, []string) ([]model.ReassignedPR, error)) *UserService_DeactivateUsersAndReassignPR_Call {
 	_c.Call.Return(run)
 	return _c
 }

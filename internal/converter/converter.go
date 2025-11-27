@@ -164,3 +164,53 @@ func APIToServiceUserAssignedPRs(prs []api.PullRequestShort) []service.UserAssig
 
 	return out
 }
+
+func ServiceReassignedPRsToAPI(results []service.ReassignedPR) api.UsersDeactivatePostOK {
+	items := make([]api.DeactivateResultItem, 0, len(results))
+
+	for _, result := range results {
+		items = append(items, ServiceReassignedPRToAPI(result.PullRequestID, result.ReplacedBy))
+	}
+
+	return api.UsersDeactivatePostOK{
+		Results: items,
+	}
+}
+
+func ServiceReassignedPRToAPI(pr service.PullRequest, newReviewerID string) api.DeactivateResultItem {
+	apiPR := api.DeactivateResultItemPullRequest{
+		PullRequestID:     pr.PullRequestID,
+		PullRequestName:   pr.PullRequestName,
+		AuthorID:          pr.AuthorID,
+		Status:            toDeactivateResultItemStatusFromModel(pr.Status),
+		AssignedReviewers: pr.AssignedReviewers,
+	}
+
+	if pr.CreatedAt != nil {
+		apiPR.SetCreatedAt(api.NewOptNilDateTime(*pr.CreatedAt))
+	} else {
+		apiPR.CreatedAt.SetToNull()
+	}
+
+	if pr.MergedAt != nil {
+		apiPR.SetMergedAt(api.NewOptNilDateTime(*pr.MergedAt))
+	} else {
+		apiPR.MergedAt.SetToNull()
+	}
+
+	return api.DeactivateResultItem{
+		PullRequest: apiPR,
+		ReplacedBy:  newReviewerID,
+	}
+}
+
+func toDeactivateResultItemStatusFromModel(status service.Status) api.DeactivateResultItemPullRequestStatus {
+	switch status {
+	case service.StatusOpen:
+		return api.DeactivateResultItemPullRequestStatusOPEN
+	case service.StatusMerged:
+		return api.DeactivateResultItemPullRequestStatusMERGED
+	default:
+		return api.DeactivateResultItemPullRequestStatusOPEN
+	}
+}

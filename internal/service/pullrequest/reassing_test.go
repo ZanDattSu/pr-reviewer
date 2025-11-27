@@ -3,6 +3,7 @@ package pullrequest
 import (
 	"context"
 	"errors"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
@@ -23,8 +24,8 @@ func (s *SuiteService) TestReassignPullRequest_RandomCandidate() {
 		}, nil).
 		Once()
 
-	s.teamRepo.
-		On("GetTeamActiveMembersWithoutUser", s.ctx, "u2").
+	s.userRepo.
+		On("GetTeamActiveMembers", s.ctx, "u2").
 		Return([]string{"u5", "u6"}, nil).
 		Once()
 
@@ -44,7 +45,6 @@ func (s *SuiteService) TestReassignPullRequest_RandomCandidate() {
 	s.Contains(pr.AssignedReviewers, newID)
 
 	s.prRepo.AssertExpectations(s.T())
-	s.teamRepo.AssertExpectations(s.T())
 	s.reviewerRepo.AssertExpectations(s.T())
 }
 
@@ -77,8 +77,8 @@ func (s *SuiteService) TestReassignPullRequest() {
 					}, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u10").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u10").
 					Return([]string{"u12"}, nil).
 					Once()
 
@@ -158,8 +158,8 @@ func (s *SuiteService) TestReassignPullRequest() {
 					}, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u2").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u2").
 					Return([]string{}, nil).
 					Once()
 			},
@@ -180,8 +180,8 @@ func (s *SuiteService) TestReassignPullRequest() {
 					}, nil).
 					Once()
 
-				s.teamRepo.
-					On("GetTeamActiveMembersWithoutUser", s.ctx, "u5").
+				s.userRepo.
+					On("GetTeamActiveMembers", s.ctx, "u5").
 					Return([]string{"u7"}, nil).
 					Once()
 
@@ -216,7 +216,6 @@ func (s *SuiteService) TestReassignPullRequest() {
 			}
 
 			s.prRepo.AssertExpectations(s.T())
-			s.teamRepo.AssertExpectations(s.T())
 			s.reviewerRepo.AssertExpectations(s.T())
 		})
 	}

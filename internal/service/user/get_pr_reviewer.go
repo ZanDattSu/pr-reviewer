@@ -17,5 +17,5 @@ func (s *userService) UserGetPRReviewer(ctx context.Context, userID string) ([]m
 		return nil, apperror.NewUserNotFoundError(userID)
 	}
 
-	return s.userRepo.UserGetPRReviewer(ctx, userID)
+	return s.userRepo.GetPRReviewer(ctx, userID)
 }

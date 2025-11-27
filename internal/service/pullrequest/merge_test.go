@@ -15,12 +15,12 @@ func (s *SuiteService) TestMergePullRequest() {
 	dbErr := errors.New("database error")
 
 	tests := []struct {
-		name              string
-		pullRequestID     string
-		setupMocks        func()
-		expectedPR        model.PullRequest
-		expectedError     error
-		expectedErrorType error
+		name            string
+		pullRequestID   string
+		setupMocks      func()
+		expectedPR      model.PullRequest
+		expectedErr     error
+		expectedErrType error
 	}{
 		{
 			name:          "успешный merge — первый вызов, устанавливаем MERGED и mergedAt",
@@ -57,7 +57,7 @@ func (s *SuiteService) TestMergePullRequest() {
 				AuthorID:        "u1",
 				Status:          model.StatusMerged,
 			},
-			expectedError: nil,
+			expectedErr: nil,
 		},
 
 		{
@@ -96,7 +96,7 @@ func (s *SuiteService) TestMergePullRequest() {
 				AuthorID:        "u2",
 				Status:          model.StatusMerged,
 			},
-			expectedError: nil,
+			expectedErr: nil,
 		},
 
 		{
@@ -108,8 +108,8 @@ func (s *SuiteService) TestMergePullRequest() {
 					Return(model.PullRequest{}, apperror.NewPRNotFoundError("pr-9999")).
 					Once()
 			},
-			expectedPR:        model.PullRequest{},
-			expectedErrorType: apperror.NewPRNotFoundError("pr-9999"),
+			expectedPR:      model.PullRequest{},
+			expectedErrType: apperror.NewPRNotFoundError("pr-9999"),
 		},
 
 		{
@@ -121,8 +121,8 @@ func (s *SuiteService) TestMergePullRequest() {
 					Return(model.PullRequest{}, dbErr).
 					Once()
 			},
-			expectedPR:    model.PullRequest{},
-			expectedError: dbErr,
+			expectedPR:  model.PullRequest{},
+			expectedErr: dbErr,
 		},
 
 		{
@@ -142,8 +142,8 @@ func (s *SuiteService) TestMergePullRequest() {
 					Return(model.PullRequest{}, dbErr).
 					Once()
 			},
-			expectedPR:    model.PullRequest{},
-			expectedError: dbErr,
+			expectedPR:  model.PullRequest{},
+			expectedErr: dbErr,
 		},
 
 		{
@@ -177,7 +177,7 @@ func (s *SuiteService) TestMergePullRequest() {
 				PullRequestID: "pr-1005",
 				Status:        model.StatusMerged,
 			},
-			expectedError: nil,
+			expectedErr: nil,
 		},
 	}
 
@@ -187,14 +187,16 @@ func (s *SuiteService) TestMergePullRequest() {
 
 			actualPR, err := s.service.MergePullRequest(s.ctx, tt.pullRequestID)
 
-			//nolint:gocritic
-			if tt.expectedError != nil {
+			switch {
+			case tt.expectedErr != nil:
 				s.Error(err)
-				s.Equal(tt.expectedError.Error(), err.Error())
-			} else if tt.expectedErrorType != nil {
+				s.Equal(tt.expectedErr.Error(), err.Error())
+
+			case tt.expectedErrType != nil:
 				s.Error(err)
-				s.IsType(tt.expectedErrorType, err)
-			} else {
+				s.IsType(tt.expectedErrType, err)
+
+			default:
 				s.NoError(err)
 				s.Equal(tt.expectedPR.Status, actualPR.Status)
 				s.Equal(tt.expectedPR.PullRequestID, actualPR.PullRequestID)

@@ -11,18 +11,24 @@ import (
 )
 
 type mainHandler struct {
-	HealthApi      health.HealthApi
+	HealthApi health.HealthApi
+
 	PullRequestApi pullrequest.PRApi
-	TeamApi        team.TeamApi
-	UsersApi       user.UserApi
+
+	TeamApi team.TeamApi
+
+	UsersApi user.UserApi
 }
 
 func NewApi(healthApi health.HealthApi, pullRequestApi pullrequest.PRApi, teamApi team.TeamApi, usersApi user.UserApi) *mainHandler {
 	return &mainHandler{
-		HealthApi:      healthApi,
+		HealthApi: healthApi,
+
 		PullRequestApi: pullRequestApi,
-		TeamApi:        teamApi,
-		UsersApi:       usersApi,
+
+		TeamApi: teamApi,
+
+		UsersApi: usersApi,
 	}
 }
 

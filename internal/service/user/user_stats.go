@@ -8,8 +8,11 @@ import (
 
 func (s *userService) GetUserStats(
 	ctx context.Context,
+
 	top int,
+
 	onlyActive bool,
+
 	onlyOpen bool,
 ) ([]model.UserStats, error) {
 	userStats, err := s.userRepo.GetUserStats(ctx, top, onlyActive, onlyOpen)

@@ -10,15 +10,14 @@ import (
 
 // Ref: #/components/schemas/DeactivateResultItem
 type DeactivateResultItem struct {
-	// Идентификатор PR, в котором произошла замена ревьювера.
-	PullRequestID string `json:"pull_request_id"`
+	PullRequest DeactivateResultItemPullRequest `json:"pull_request"`
 	// User_id нового ревьювера.
 	ReplacedBy string `json:"replaced_by"`
 }
 
-// GetPullRequestID returns the value of PullRequestID.
-func (s *DeactivateResultItem) GetPullRequestID() string {
-	return s.PullRequestID
+// GetPullRequest returns the value of PullRequest.
+func (s *DeactivateResultItem) GetPullRequest() DeactivateResultItemPullRequest {
+	return s.PullRequest
 }
 
 // GetReplacedBy returns the value of ReplacedBy.
@@ -26,14 +25,136 @@ func (s *DeactivateResultItem) GetReplacedBy() string {
 	return s.ReplacedBy
 }
 
-// SetPullRequestID sets the value of PullRequestID.
-func (s *DeactivateResultItem) SetPullRequestID(val string) {
-	s.PullRequestID = val
+// SetPullRequest sets the value of PullRequest.
+func (s *DeactivateResultItem) SetPullRequest(val DeactivateResultItemPullRequest) {
+	s.PullRequest = val
 }
 
 // SetReplacedBy sets the value of ReplacedBy.
 func (s *DeactivateResultItem) SetReplacedBy(val string) {
 	s.ReplacedBy = val
+}
+
+type DeactivateResultItemPullRequest struct {
+	PullRequestID   string                                `json:"pull_request_id"`
+	PullRequestName string                                `json:"pull_request_name"`
+	AuthorID        string                                `json:"author_id"`
+	Status          DeactivateResultItemPullRequestStatus `json:"status"`
+	// User_id назначенных ревьюверов (0..2).
+	AssignedReviewers []string       `json:"assigned_reviewers"`
+	CreatedAt         OptNilDateTime `json:"createdAt"`
+	MergedAt          OptNilDateTime `json:"mergedAt"`
+}
+
+// GetPullRequestID returns the value of PullRequestID.
+func (s *DeactivateResultItemPullRequest) GetPullRequestID() string {
+	return s.PullRequestID
+}
+
+// GetPullRequestName returns the value of PullRequestName.
+func (s *DeactivateResultItemPullRequest) GetPullRequestName() string {
+	return s.PullRequestName
+}
+
+// GetAuthorID returns the value of AuthorID.
+func (s *DeactivateResultItemPullRequest) GetAuthorID() string {
+	return s.AuthorID
+}
+
+// GetStatus returns the value of Status.
+func (s *DeactivateResultItemPullRequest) GetStatus() DeactivateResultItemPullRequestStatus {
+	return s.Status
+}
+
+// GetAssignedReviewers returns the value of AssignedReviewers.
+func (s *DeactivateResultItemPullRequest) GetAssignedReviewers() []string {
+	return s.AssignedReviewers
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *DeactivateResultItemPullRequest) GetCreatedAt() OptNilDateTime {
+	return s.CreatedAt
+}
+
+// GetMergedAt returns the value of MergedAt.
+func (s *DeactivateResultItemPullRequest) GetMergedAt() OptNilDateTime {
+	return s.MergedAt
+}
+
+// SetPullRequestID sets the value of PullRequestID.
+func (s *DeactivateResultItemPullRequest) SetPullRequestID(val string) {
+	s.PullRequestID = val
+}
+
+// SetPullRequestName sets the value of PullRequestName.
+func (s *DeactivateResultItemPullRequest) SetPullRequestName(val string) {
+	s.PullRequestName = val
+}
+
+// SetAuthorID sets the value of AuthorID.
+func (s *DeactivateResultItemPullRequest) SetAuthorID(val string) {
+	s.AuthorID = val
+}
+
+// SetStatus sets the value of Status.
+func (s *DeactivateResultItemPullRequest) SetStatus(val DeactivateResultItemPullRequestStatus) {
+	s.Status = val
+}
+
+// SetAssignedReviewers sets the value of AssignedReviewers.
+func (s *DeactivateResultItemPullRequest) SetAssignedReviewers(val []string) {
+	s.AssignedReviewers = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *DeactivateResultItemPullRequest) SetCreatedAt(val OptNilDateTime) {
+	s.CreatedAt = val
+}
+
+// SetMergedAt sets the value of MergedAt.
+func (s *DeactivateResultItemPullRequest) SetMergedAt(val OptNilDateTime) {
+	s.MergedAt = val
+}
+
+type DeactivateResultItemPullRequestStatus string
+
+const (
+	DeactivateResultItemPullRequestStatusOPEN   DeactivateResultItemPullRequestStatus = "OPEN"
+	DeactivateResultItemPullRequestStatusMERGED DeactivateResultItemPullRequestStatus = "MERGED"
+)
+
+// AllValues returns all DeactivateResultItemPullRequestStatus values.
+func (DeactivateResultItemPullRequestStatus) AllValues() []DeactivateResultItemPullRequestStatus {
+	return []DeactivateResultItemPullRequestStatus{
+		DeactivateResultItemPullRequestStatusOPEN,
+		DeactivateResultItemPullRequestStatusMERGED,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s DeactivateResultItemPullRequestStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case DeactivateResultItemPullRequestStatusOPEN:
+		return []byte(s), nil
+	case DeactivateResultItemPullRequestStatusMERGED:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *DeactivateResultItemPullRequestStatus) UnmarshalText(data []byte) error {
+	switch DeactivateResultItemPullRequestStatus(data) {
+	case DeactivateResultItemPullRequestStatusOPEN:
+		*s = DeactivateResultItemPullRequestStatusOPEN
+		return nil
+	case DeactivateResultItemPullRequestStatusMERGED:
+		*s = DeactivateResultItemPullRequestStatusMERGED
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/ErrorResponse

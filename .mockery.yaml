@@ -3,15 +3,15 @@ dir: "{{.InterfaceDir}}/../mocks"
 filename: "mock_{{.InterfaceNameSnake}}.go"
 outpkg: "mocks"
 mockname: "{{.InterfaceName}}"
-resolve-type-alias: False
-issue-845-fix: True
+resolve-type-alias: false
+issue-845-fix: true
 recursive: true
-disable-version-string: True
+disable-version-string: true
 
 packages:
   github.com/ZanDattSu/pr-reviewer/internal/service:
     config:
-      include-regex: ".*Service"
+      include-regex: ".*Service|TransactionManager"
 
   github.com/ZanDattSu/pr-reviewer/internal/repository:
     config:

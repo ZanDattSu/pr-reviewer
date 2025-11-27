@@ -8,7 +8,10 @@ import (
 
 type UserApi interface {
 	UsersGetReviewGet(ctx context.Context, params reviewerV1.UsersGetReviewGetParams) (reviewerV1.UsersGetReviewGetRes, error)
+
 	UsersSetIsActivePost(ctx context.Context, req *reviewerV1.UsersSetIsActivePostReq) (reviewerV1.UsersSetIsActivePostRes, error)
+
 	UsersStatsGet(ctx context.Context, params reviewerV1.UsersStatsGetParams) (reviewerV1.UsersStatsGetRes, error)
+
 	UsersDeactivatePost(ctx context.Context, req *reviewerV1.UsersDeactivatePostReq) (reviewerV1.UsersDeactivatePostRes, error)
 }

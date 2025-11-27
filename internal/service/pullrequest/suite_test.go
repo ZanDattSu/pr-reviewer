@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/repository/mocks"
+	serviceMocks "github.com/ZanDattSu/pr-reviewer/internal/service/mocks"
 )
 
 type SuiteService struct {
@@ -16,8 +17,8 @@ type SuiteService struct {
 
 	prRepo       *mocks.PullRequestRepository
 	reviewerRepo *mocks.ReviewerRepository
-	teamRepo     *mocks.TeamRepository
 	userRepo     *mocks.UserRepository
+	trm          *serviceMocks.TransactionManager
 
 	service *prService
 }
@@ -27,10 +28,10 @@ func (s *SuiteService) SetupTest() {
 
 	s.prRepo = mocks.NewPullRequestRepository(s.T())
 	s.reviewerRepo = mocks.NewReviewerRepository(s.T())
-	s.teamRepo = mocks.NewTeamRepository(s.T())
 	s.userRepo = mocks.NewUserRepository(s.T())
+	s.trm = serviceMocks.NewTransactionManager(s.T())
 
-	s.service = NewPrService(s.prRepo, s.reviewerRepo, s.teamRepo, s.userRepo)
+	s.service = NewPrService(s.prRepo, s.reviewerRepo, s.userRepo, s.trm)
 }
 
 func (s *SuiteService) TearDownTest() {
