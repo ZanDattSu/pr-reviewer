@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"fmt"
-
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
 )
 
