@@ -198,7 +198,7 @@ tasks:
 
   coverage:html:
     desc: "Генерирует HTML-отчёт покрытия и открывает его в браузере"
-    deps: [ test-coverage ]
+    deps: [ test ]
     cmds:
       - |
         OUTPUT={{.COVERAGE_DIR}}/coverage.html

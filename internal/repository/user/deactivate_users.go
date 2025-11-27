@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 )
 
 func (r *userRepository) DeactivateUsers(ctx context.Context, userIDs []string) ([]string, error) {
@@ -15,11 +18,14 @@ func (r *userRepository) DeactivateUsers(ctx context.Context, userIDs []string) 
 	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
 	rows, err := conn.Query(ctx, q, userIDs)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return []string{}, fmt.Errorf("no users were deactivated")
+		}
 		return nil, err
 	}
 	defer rows.Close()
 
-	var deactivated []string
+	deactivated := make([]string, 0)
 	for rows.Next() {
 		var id string
 		if err := rows.Scan(&id); err != nil {

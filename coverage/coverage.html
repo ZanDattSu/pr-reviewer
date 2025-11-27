@@ -1,0 +1,534 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>pullrequest: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/ZanDattSu/pr-reviewer/internal/service/pullrequest/create.go (100.0%)</option>
+				
+				<option value="file1">github.com/ZanDattSu/pr-reviewer/internal/service/pullrequest/merge.go (100.0%)</option>
+				
+				<option value="file2">github.com/ZanDattSu/pr-reviewer/internal/service/pullrequest/pick_reviewers.go (100.0%)</option>
+				
+				<option value="file3">github.com/ZanDattSu/pr-reviewer/internal/service/pullrequest/pr_service.go (100.0%)</option>
+				
+				<option value="file4">github.com/ZanDattSu/pr-reviewer/internal/service/pullrequest/reassign.go (95.7%)</option>
+				
+				<option value="file5">github.com/ZanDattSu/pr-reviewer/internal/service/team/add.go (100.0%)</option>
+				
+				<option value="file6">github.com/ZanDattSu/pr-reviewer/internal/service/team/get.go (100.0%)</option>
+				
+				<option value="file7">github.com/ZanDattSu/pr-reviewer/internal/service/team/team_service.go (100.0%)</option>
+				
+				<option value="file8">github.com/ZanDattSu/pr-reviewer/internal/service/user/deactivate.go (100.0%)</option>
+				
+				<option value="file9">github.com/ZanDattSu/pr-reviewer/internal/service/user/get_pr_reviewer.go (100.0%)</option>
+				
+				<option value="file10">github.com/ZanDattSu/pr-reviewer/internal/service/user/update_user_status.go (100.0%)</option>
+				
+				<option value="file11">github.com/ZanDattSu/pr-reviewer/internal/service/user/user_service.go (100.0%)</option>
+				
+				<option value="file12">github.com/ZanDattSu/pr-reviewer/internal/service/user/user_stats.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package pullrequest
+
+import (
+        "context"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+        "github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
+)
+
+func (s *prService) CreatePullRequest(
+        ctx context.Context,
+        pullRequestID,
+        pullRequestName,
+        authorID string,
+) (model.PullRequest, error) <span class="cov8" title="1">{
+        prExists, err := s.prRepo.CheckPRExists(ctx, pullRequestID)
+        if err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, err
+        }</span>
+
+        <span class="cov8" title="1">if prExists </span><span class="cov8" title="1">{
+                return model.PullRequest{}, apperror.NewPRExistsError(pullRequestID)
+        }</span>
+
+        <span class="cov8" title="1">userExists, err := s.userRepo.CheckUserExists(ctx, authorID)
+        if err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, err
+        }</span>
+
+        <span class="cov8" title="1">if !userExists </span><span class="cov8" title="1">{
+                return model.PullRequest{}, apperror.NewUserNotFoundError(authorID)
+        }</span>
+
+        <span class="cov8" title="1">teamActiveMembers, err := s.userRepo.GetTeamActiveMembers(ctx, authorID)
+        if err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, err
+        }</span>
+
+        <span class="cov8" title="1">prReviewers := PickReviewers(teamActiveMembers, 2)
+
+        pr := model.PullRequest{
+                PullRequestID:     pullRequestID,
+                PullRequestName:   pullRequestName,
+                AuthorID:          authorID,
+                Status:            model.StatusOpen,
+                AssignedReviewers: prReviewers,
+        }
+
+        createdPR, err := s.prRepo.InsertPR(ctx, pr)
+        if err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, err
+        }</span>
+
+        <span class="cov8" title="1">return createdPR, err</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package pullrequest
+
+import (
+        "context"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+)
+
+func (s *prService) MergePullRequest(ctx context.Context, pullRequestID string) (model.PullRequest, error) <span class="cov8" title="1">{
+        pr, err := s.prRepo.GetPRWithReviewers(ctx, pullRequestID)
+        if err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, err
+        }</span>
+
+        <span class="cov8" title="1">updatePR, err := s.prRepo.UpdatePRStatus(ctx, pr, model.StatusMerged)
+        if err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, err
+        }</span>
+
+        <span class="cov8" title="1">return updatePR, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package pullrequest
+
+import "math/rand"
+
+// PickReviewers выбирает reviewersCount случайных уникальных ревьюверов
+// из массива activeTeamMember.
+// Частично использует алгоритм Фишера–Йетса
+func PickReviewers(activeTeamMembers []string, reviewersCount int) []string <span class="cov8" title="1">{
+        n := len(activeTeamMembers)
+        if n &lt;= reviewersCount </span><span class="cov8" title="1">{
+                return copySlice(activeTeamMembers)
+        }</span>
+
+        <span class="cov8" title="1">for i := 0; i &lt; reviewersCount; i++ </span><span class="cov8" title="1">{
+                j := i + rand.Intn(n-i) //nolint:gosec
+                swap(activeTeamMembers, i, j)
+        }</span>
+
+        <span class="cov8" title="1">return activeTeamMembers[:reviewersCount]</span>
+}
+
+func copySlice(activeTeamMembers []string) []string <span class="cov8" title="1">{
+        return append([]string{}, activeTeamMembers...)
+}</span>
+
+func swap(activeTeamMembers []string, i, j int) <span class="cov8" title="1">{
+        activeTeamMembers[i], activeTeamMembers[j] = activeTeamMembers[j], activeTeamMembers[i]
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package pullrequest
+
+import (
+        "github.com/avito-tech/go-transaction-manager/trm"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest"
+        "github.com/ZanDattSu/pr-reviewer/internal/repository/reviewer"
+        "github.com/ZanDattSu/pr-reviewer/internal/repository/user"
+)
+
+// Компиляторная проверка: убеждаемся, что *prService реализует интерфейс PRService.
+var _ PRService = (*prService)(nil)
+
+type prService struct {
+        prRepo       pullrequest.PullRequestRepository
+        reviewerRepo reviewer.ReviewerRepository
+        userRepo     user.UserRepository
+        tm           trm.Manager
+}
+
+func NewPrService(
+        prRepo pullrequest.PullRequestRepository,
+        reviewerRepo reviewer.ReviewerRepository,
+        userRepo user.UserRepository,
+        tm trm.Manager,
+) *prService <span class="cov8" title="1">{
+        return &amp;prService{
+                prRepo:       prRepo,
+                reviewerRepo: reviewerRepo,
+                userRepo:     userRepo,
+                tm:           tm,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package pullrequest
+
+import (
+        "context"
+        "slices"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+        "github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
+)
+
+func (s *prService) ReassignPullRequest(ctx context.Context, pullRequestID, oldReviewerID string) (model.PullRequest, string, error) <span class="cov8" title="1">{
+        pr, err := s.prRepo.GetPRWithReviewers(ctx, pullRequestID)
+        if err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, "", err
+        }</span>
+
+        <span class="cov8" title="1">if pr.Status == model.StatusMerged </span><span class="cov8" title="1">{
+                return model.PullRequest{}, "", apperror.NewPRMergedError(pullRequestID)
+        }</span>
+
+        <span class="cov8" title="1">if !slices.Contains(pr.AssignedReviewers, oldReviewerID) </span><span class="cov8" title="1">{
+                return model.PullRequest{}, "", apperror.NewNotAssignedError(oldReviewerID)
+        }</span>
+
+        <span class="cov8" title="1">teamActiveMembers, err := s.userRepo.GetTeamActiveMembers(ctx, oldReviewerID)
+        if err != nil </span><span class="cov0" title="0">{
+                return model.PullRequest{}, "", err
+        }</span>
+
+        <span class="cov8" title="1">if len(teamActiveMembers) == 0 </span><span class="cov8" title="1">{
+                return model.PullRequest{}, "", apperror.NewNoCandidateError(pullRequestID)
+        }</span>
+
+        <span class="cov8" title="1">newReviewerID := PickReviewers(teamActiveMembers, 1)[0]
+
+        if err := s.reviewerRepo.ReplaceReviewer(ctx, pullRequestID, oldReviewerID, newReviewerID); err != nil </span><span class="cov8" title="1">{
+                return model.PullRequest{}, "", err
+        }</span>
+
+        <span class="cov8" title="1">pr.AssignedReviewers = updatePRReviewers(pr, oldReviewerID, newReviewerID)
+
+        return pr, newReviewerID, nil</span>
+}
+
+func updatePRReviewers(pr model.PullRequest, oldReviewerID, newReviewerID string) []string <span class="cov8" title="1">{
+        updated := make([]string, 0, len(pr.AssignedReviewers))
+
+        for _, r := range pr.AssignedReviewers </span><span class="cov8" title="1">{
+                if r == oldReviewerID </span><span class="cov8" title="1">{
+                        updated = append(updated, newReviewerID)
+                }</span> else<span class="cov8" title="1"> {
+                        updated = append(updated, r)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return updated</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package team
+
+import (
+        "context"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+)
+
+func (s *teamService) AddTeam(ctx context.Context, team model.Team) (model.Team, error) <span class="cov8" title="1">{
+        var result model.Team
+        err := s.tm.Do(ctx, func(ctx context.Context) error </span><span class="cov8" title="1">{
+                t, err := s.teamRepo.AddTeam(ctx, team)
+                if err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">result = t
+                return nil</span>
+        })
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                return model.Team{}, err
+        }</span>
+
+        <span class="cov8" title="1">return result, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package team
+
+import (
+        "context"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+)
+
+func (s *teamService) GetTeam(ctx context.Context, teamName string) (model.Team, error) <span class="cov8" title="1">{
+        return s.teamRepo.GetTeam(ctx, teamName)
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package team
+
+import (
+        "github.com/avito-tech/go-transaction-manager/trm"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/repository/team"
+)
+
+// Компиляторная проверка: убеждаемся, что *teamService реализует интерфейс TeamService.
+var _ TeamService = (*teamService)(nil)
+
+type teamService struct {
+        teamRepo team.TeamRepository
+        tm       trm.Manager
+}
+
+func NewTeamService(teamRepo team.TeamRepository, tm trm.Manager) *teamService <span class="cov8" title="1">{
+        return &amp;teamService{
+                teamRepo: teamRepo,
+                tm:       tm,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package user
+
+import (
+        "context"
+        "fmt"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+)
+
+func (s *userService) DeactivateUsersAndReassignPR(ctx context.Context, userIDs []string) ([]model.ReassignedPR, error) <span class="cov8" title="1">{
+        reassignedPRs := make([]model.ReassignedPR, 0)
+
+        err := s.tm.Do(ctx, func(ctx context.Context) error </span><span class="cov8" title="1">{
+                deactivated, err := s.userRepo.DeactivateUsers(ctx, userIDs)
+                if err != nil </span><span class="cov8" title="1">{
+                        return fmt.Errorf("failed to deactivate users: %w", err)
+                }</span>
+
+                <span class="cov8" title="1">if len(deactivated) == 0 </span><span class="cov8" title="1">{
+                        return fmt.Errorf("no users were deactivated")
+                }</span>
+
+                <span class="cov8" title="1">openPRs, err := s.prRepo.FindOpenPRsWithReviewers(ctx, deactivated)
+                if err != nil </span><span class="cov8" title="1">{
+                        return fmt.Errorf("failed to find open PRs: %w", err)
+                }</span>
+
+                <span class="cov8" title="1">if len(openPRs) == 0 </span><span class="cov8" title="1">{
+                        return nil
+                }</span>
+
+                <span class="cov8" title="1">for _, openPR := range openPRs </span><span class="cov8" title="1">{
+                        pr, newReviewerID, err := s.prService.ReassignPullRequest(ctx, openPR.PRID, openPR.OldReviewer)
+                        if err != nil </span><span class="cov8" title="1">{
+                                return fmt.Errorf("failed to reassign PR %s: %w", openPR.PRID, err)
+                        }</span>
+
+                        <span class="cov8" title="1">reassignedPRs = append(reassignedPRs, model.ReassignedPR{
+                                PullRequestID: pr,
+                                ReplacedBy:    newReviewerID,
+                        })</span>
+                }
+
+                <span class="cov8" title="1">return nil</span>
+        })
+        <span class="cov8" title="1">if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return reassignedPRs, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package user
+
+import (
+        "context"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+        "github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
+)
+
+func (s *userService) UserGetPRReviewer(ctx context.Context, userID string) ([]model.UserAssignedPR, error) <span class="cov8" title="1">{
+        exists, err := s.userRepo.CheckUserExists(ctx, userID)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if !exists </span><span class="cov8" title="1">{
+                return nil, apperror.NewUserNotFoundError(userID)
+        }</span>
+
+        <span class="cov8" title="1">return s.userRepo.GetPRReviewer(ctx, userID)</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package user
+
+import (
+        "context"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+)
+
+func (s *userService) UpdateUserStatus(ctx context.Context, userID string, isActive bool) (model.User, error) <span class="cov8" title="1">{
+        return s.userRepo.UpdateUserStatus(ctx, userID, isActive)
+}</span>
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package user
+
+import (
+        "github.com/avito-tech/go-transaction-manager/trm"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/repository/pullrequest"
+        "github.com/ZanDattSu/pr-reviewer/internal/repository/user"
+        prService "github.com/ZanDattSu/pr-reviewer/internal/service/pullrequest"
+)
+
+// Компиляторная проверка: убеждаемся, что *userService реализует интерфейс UserService.
+var _ UserService = (*userService)(nil)
+
+type userService struct {
+        prService prService.PRService
+        userRepo  user.UserRepository
+        prRepo    pullrequest.PullRequestRepository
+        tm        trm.Manager
+}
+
+func NewUserService(
+        prService prService.PRService,
+        userRepo user.UserRepository,
+        prRepo pullrequest.PullRequestRepository,
+        tm trm.Manager,
+) *userService <span class="cov8" title="1">{
+        return &amp;userService{
+                prService: prService,
+                userRepo:  userRepo,
+                prRepo:    prRepo,
+                tm:        tm,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package user
+
+import (
+        "context"
+
+        "github.com/ZanDattSu/pr-reviewer/internal/model"
+)
+
+func (s *userService) GetUserStats(ctx context.Context, top int, onlyActive, onlyOpen bool) ([]model.UserStats, error) <span class="cov8" title="1">{
+        userStats, err := s.userRepo.GetUserStats(ctx, top, onlyActive, onlyOpen)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return userStats, nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

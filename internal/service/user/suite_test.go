@@ -29,6 +29,7 @@ func (s *SuiteService) SetupTest() {
 	s.prService = serviceMocks.NewPRService(s.T())
 	s.userRepo = mocks.NewUserRepository(s.T())
 	s.prRepo = mocks.NewPullRequestRepository(s.T())
+	s.trm = serviceMocks.NewTransactionManager(s.T())
 
 	s.service = NewUserService(
 		s.prService,

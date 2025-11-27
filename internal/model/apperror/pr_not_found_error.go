@@ -14,8 +14,8 @@ func (e *PRNotFoundError) Error() string {
 	return fmt.Sprintf("pull request %s not found", e.pullRequestID)
 }
 
-func NewPRNotFoundError(name string) *PRNotFoundError {
+func NewPRNotFoundError(pullRequestID string) *PRNotFoundError {
 	return &PRNotFoundError{
-		pullRequestID: name,
+		pullRequestID: pullRequestID,
 	}
 }

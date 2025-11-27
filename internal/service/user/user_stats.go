@@ -6,15 +6,7 @@ import (
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
 )
 
-func (s *userService) GetUserStats(
-	ctx context.Context,
-
-	top int,
-
-	onlyActive bool,
-
-	onlyOpen bool,
-) ([]model.UserStats, error) {
+func (s *userService) GetUserStats(ctx context.Context, top int, onlyActive, onlyOpen bool) ([]model.UserStats, error) {
 	userStats, err := s.userRepo.GetUserStats(ctx, top, onlyActive, onlyOpen)
 	if err != nil {
 		return nil, err

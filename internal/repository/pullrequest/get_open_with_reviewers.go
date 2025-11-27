@@ -2,8 +2,11 @@ package pullrequest
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/ZanDattSu/pr-reviewer/internal/model"
+	"github.com/ZanDattSu/pr-reviewer/internal/model/apperror"
 )
 
 func (r *prRepository) FindOpenPRsWithReviewers(ctx context.Context, reviewerIDs []string) ([]model.OpenPR, error) {
@@ -19,6 +22,9 @@ func (r *prRepository) FindOpenPRsWithReviewers(ctx context.Context, reviewerIDs
 	conn := r.getter.DefaultTrOrDB(ctx, r.pool)
 	rows, err := conn.Query(ctx, q, reviewerIDs)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, apperror.NewPRNotFoundError("")
+		}
 		return nil, err
 	}
 	defer rows.Close()
